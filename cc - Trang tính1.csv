@@ -1,5 +1,5 @@
 key word,description
-parent,"""Chào a/c, cho em hỏi đây có phải là số đt của a/c...[tên] không ạ?
+Parent,"""Chào anh/chị, cho em hỏi đây có phải là số đt của anh/chị [tên] không ạ?
 
 Em là [tên ASA], trợ lý ban tuyển sinh của Đại học Fulbright. Em thấy a/c mới để lại thông tin liên hệ qua Facebook/Website và đang quan tâm đến chương trình cử nhân tại Fulbright, phải không ạ?""
 
@@ -12,14 +12,16 @@ Email (nếu được):
 Trường THPT:
 Ghi chú:
 Nếu phụ huynh hỏi, mình giải thích rằng xin thông tin các bạn để có lộ trình tư vấn học bổng chính xác, phù hợp với quá trình học phổ thông hiện tại của bạn."
-student,"""Chào em, cho anh/chị hỏi đây có phải là số điện thoại của bạn... không?
+
+Student,"""Chào em, cho anh/chị hỏi đây có phải là số điện thoại của bạn [tên] không?
 
 Chào [tên], anh/chị là [tên ASA], trợ lý ban tuyển sinh của Đại học Fulbright. Anh/chị thấy em mới để lại thông tin liên hệ qua Facebook/Website và đang quan tâm đến chương trình cử nhân của Fulbright, phải không?
 
 Cảm ơn em! Nếu em còn kế hoạch tham khảo thông tin và nộp đơn vào Fulbright, anh/chị xin phép được xin thêm một số thông tin về em để có lộ trình tư vấn phù hợp với chương trình em đang học."""
+
 update,"CẬP NHẬT TRẠNG THÁI CUỘC GỌI
 PARENT
-""Hiện Fulbright đang có đợt tuyển sinh va xét tuyển học bổng/hỗ trợ học phí đã mở vào cuối tháng 12, và trường cũng có tổ chức một số sự kiện để tư vấn chi tiết về:
+""Hiện Fulbright đang có đợt tuyển sinh và xét tuyển học bổng/hỗ trợ học phí đã mở vào cuối tháng 12, và trường cũng có tổ chức một số sự kiện để tư vấn chi tiết về:
  - Chính sách học bổng 
  - Hướng dẫn hoàn thiện hồ sơ học bổng 
  - Chương trình học và tư vấn giải đáp thắc mắc
