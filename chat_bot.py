@@ -9,7 +9,7 @@ st.title("CC - CHATBOT")
 #save the csv for github work
 GITHUB_USER = "Menbeo"
 GITHUB_REPO = "-HUHU-"
-GITHUB_API_URL = f"https://api.github.com/repos/{GITHUB_USER}/{GITHUB_repo}/contents/"
+GITHUB_API_URL = f"https://api.github.com/repos/{GITHUB_USER}/{GITHUB_REPO}/contents/"
 
 def get_csv_file():
     try:
