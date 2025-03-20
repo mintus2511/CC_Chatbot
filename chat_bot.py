@@ -7,6 +7,16 @@ st.title("CC - CHATBOT")
 #st.sidebar.header("Chat history")
 #save the csv file for cloud
 cloud_path = "data.csv"
+
+# Setup
+cc = pd.read_csv(r"cc - Trang tính1.csv") 
+program = pd.read_csv(r"program  - Trang tính1.csv") 
+other = pd.read_csv(r"other  - Trang tính1.csv")
+ts = pd.read_csv(r"ts  - Trang tính1.csv")
+hard = pd.read_csv(r"hard - Trang tính1.csv")
+hb = pd.read_csv(r"hb - Trang tính1.csv")
+major = pd.read_csv(r"major  - Trang tính1.csv")
+
 #add pdf or csv
 csv_file = st.file_uploader("Upload csv follow format:(column 1: key word, column 2: description):", type=["csv"])
 if csv_file is not None:
@@ -17,6 +27,7 @@ if csv_file is not None:
         df = new_data.to_csv(cloud_path, index=False)
         st.success("CSV filed add for team success")
         st.session_state["uploaded"] = new_data
+        exist_program["Uploaded"] = new_data
         st.write("CSV file has been added. Keywords and Descriptions:")
         st.dataframe(new_data)
         # for k, d in zip(key, descriptions):
@@ -24,16 +35,6 @@ if csv_file is not None:
             # chatbot_data = load_chat_data()
     except Exception as e:
             st.write("Please check your data format. If issues persist, contact Quynh for assistance.")
-
-
-# Setup
-cc = pd.read_csv(r"cc - Trang tính1.csv") 
-program = pd.read_csv(r"program  - Trang tính1.csv") 
-other = pd.read_csv(r"other  - Trang tính1.csv")
-ts = pd.read_csv(r"ts  - Trang tính1.csv")
-hard = pd.read_csv(r"hard - Trang tính1.csv")
-hb = pd.read_csv(r"hb - Trang tính1.csv")
-major = pd.read_csv(r"major  - Trang tính1.csv")
 
 # #save the history file 
 # history_file = "data"
