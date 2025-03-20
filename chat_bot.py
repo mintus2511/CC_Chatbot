@@ -2,20 +2,43 @@ import pandas as pd
 import streamlit as st 
 import numpy as np 
 import os 
+import requests
 #streamlit 
 st.title("CC - CHATBOT")
 #st.sidebar.header("Chat history")
-#save the csv file for cloud
-cloud_path = "data.csv"
+#save the csv for github work
+GITHUB_USER = "Menbeo"
+GITHUB_repo = "-HUHU-"
+GITHUB_url = "https://github.com/Menbeo/-HUHU-.git"
 
+def get_csv_file():
+    try:
+        response = requests.get(GITHUB_url)
+        response.raise_for_status()
+        files = response.json()
+        csv_file = {file["name"]: file["download_url"]
+        for file in files if file["name"].endswith(".csv")}
+        return csv_file
+    except requests.exceptions.RequestException as e:
+        st.error(f"Cannot work contact Quynh, Tu, Thach for debug")
+        return {}
+def load_data(url):
+    try:
+        return pd.read_csv(url)
+    except Exception as e:
+        st.error(f"Pls contact Quynh")
+        return None
+csv_file = get_csv_file()
+#loadi 
+exist_program = {name: load_data() for name, url in csv_file.items() if load_data(url) is not None)
 # Setup
-cc = pd.read_csv(r"cc - Trang tính1.csv") 
-program = pd.read_csv(r"program  - Trang tính1.csv") 
-other = pd.read_csv(r"other  - Trang tính1.csv")
-ts = pd.read_csv(r"ts  - Trang tính1.csv")
-hard = pd.read_csv(r"hard - Trang tính1.csv")
-hb = pd.read_csv(r"hb - Trang tính1.csv")
-major = pd.read_csv(r"major  - Trang tính1.csv")
+# cc = pd.read_csv(r"cc - Trang tính1.csv") 
+# program = pd.read_csv(r"program  - Trang tính1.csv") 
+# other = pd.read_csv(r"other  - Trang tính1.csv")
+# ts = pd.read_csv(r"ts  - Trang tính1.csv")
+# hard = pd.read_csv(r"hard - Trang tính1.csv")
+# hb = pd.read_csv(r"hb - Trang tính1.csv")
+# major = pd.read_csv(r"major  - Trang tính1.csv")
 
 
 # #save the history file 
@@ -36,16 +59,16 @@ major = pd.read_csv(r"major  - Trang tính1.csv")
 
 
 
-# Topics and keyword datasets
-exist_program = {
-    "cc": cc,
-    "program": program,
-    "other": other,
-    "ts": ts,
-    "hard": hard,
-    "hb": hb,
-    "major": major,
-}
+# # Topics and keyword datasets
+# exist_program = {
+#     "cc": cc,
+#     "program": program,
+#     "other": other,
+#     "ts": ts,
+#     "hard": hard,
+#     "hb": hb,
+#     "major": major,
+# }
 
 #add pdf or csv
 csv_file = st.file_uploader("Upload csv follow format:(column 1: key word, column 2: description):", type=["csv"])
