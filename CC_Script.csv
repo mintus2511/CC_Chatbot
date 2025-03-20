@@ -27,6 +27,7 @@ Chào [tên], anh/chị là [tên ASA], trợ lý ban tuyển sinh của Đại 
 Cảm ơn em! Nếu em còn kế hoạch tham khảo thông tin và nộp đơn vào Fulbright, anh/chị xin phép được xin thêm một số thông tin về em để có lộ trình tư vấn phù hợp với chương trình em đang học."""
 
 Update consulting script,"""
+
 PARENT
 
 Hiện Fulbright đang có đợt tuyển sinh và xét tuyển học bổng/hỗ trợ học phí đã mở vào cuối tháng 12, và trường cũng có tổ chức một số sự kiện để tư vấn chi tiết về:
@@ -54,8 +55,7 @@ Hiện Fulbright đang có đợt tuyển sinh va xét tuyển học bổng/hỗ
 
  Nếu em rảnh và quan tâm thì có thể sắp xếp buổi offline để được tư vấn trực tiếp và kết hợp tham quan môi trường học nha
  Hoặc anh/chị có thể chọn một buổi tư vấn trực tiếp 1:1 với chuyên viên tư vấn theo lịch mình chọn nha (Link đăng ký: https://outlook.office365.com/book/FulbrightUniversityVietnamAdmissionsOffice@fulbright.edu.vn/)
- Không biết em sắp xếp được thời gian cho sự kiện nào để bên anh/chị hỗ trợ đăng ký giữ chỗ cho em nha
-"""
+ Không biết em sắp xếp được thời gian cho sự kiện nào để bên anh/chị hỗ trợ đăng ký giữ chỗ cho em nha"""
 Lead condition ,"
 - Successful call
   - No Pick up
