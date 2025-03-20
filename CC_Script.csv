@@ -27,7 +27,7 @@ Chào [tên], anh/chị là [tên ASA], trợ lý ban tuyển sinh của Đại 
 Cảm ơn em! Nếu em còn kế hoạch tham khảo thông tin và nộp đơn vào Fulbright, anh/chị xin phép được xin thêm một số thông tin về em để có lộ trình tư vấn phù hợp với chương trình em đang học."""
 
 Update consulting script,"""
-PARENT
+""PARENT
 Hiện Fulbright đang có đợt tuyển sinh và xét tuyển học bổng/hỗ trợ học phí đã mở vào cuối tháng 12, và trường cũng có tổ chức một số sự kiện để tư vấn chi tiết về:
  - Chính sách học bổng 
  - Hướng dẫn hoàn thiện hồ sơ học bổng 
@@ -37,10 +37,10 @@ Hiện Fulbright đang có đợt tuyển sinh và xét tuyển học bổng/h�
  - offline vào ngày 16/3 lúc 9AM
  Nếu anh/chị mình quan tâm và thuận tiện thì có thể sắp xếp buổi offline để được tư vấn trực tiếp và kết hợp tham quan môi trường học ạ
  Hoặc anh/chị có thể chọn một buổi tư vấn trực tiếp 1:1 với chuyên viên tư vấn theo lịch mình chọn ạ (Link đăng ký: https://outlook.office365.com/book/FulbrightUniversityVietnamAdmissionsOffice@fulbright.edu.vn/)
- Dạ không biết anh/chị mình sắp xếp được thời gian cho sự kiện nào để bên em hỗ trợ đăng ký giữ chỗ cho mình ạ
+ Dạ không biết anh/chị mình sắp xếp được thời gian cho sự kiện nào để bên em hỗ trợ đăng ký giữ chỗ cho mình ạ""
 
 
-STUDENT
+""STUDENT
 Hiện Fulbright đang có đợt tuyển sinh va xét tuyển học bổng/hỗ trợ học phí đã mở vào cuối tháng 12, và trường cũng có tổ chức một số sự kiện để tư vấn chi tiết về:
  - Chính sách học bổng 
  - Hướng dẫn hoàn thiện hồ sơ học bổng 
@@ -50,7 +50,8 @@ Hiện Fulbright đang có đợt tuyển sinh va xét tuyển học bổng/hỗ
  - offline vào ngày 16/3 lúc 9AM
  Nếu em rảnh và quan tâm thì có thể sắp xếp buổi offline để được tư vấn trực tiếp và kết hợp tham quan môi trường học nha
  Hoặc anh/chị có thể chọn một buổi tư vấn trực tiếp 1:1 với chuyên viên tư vấn theo lịch mình chọn nha (Link đăng ký: https://outlook.office365.com/book/FulbrightUniversityVietnamAdmissionsOffice@fulbright.edu.vn/)
- Không biết em sắp xếp được thời gian cho sự kiện nào để bên anh/chị hỗ trợ đăng ký giữ chỗ cho em nha"""
+ Không biết em sắp xếp được thời gian cho sự kiện nào để bên anh/chị hỗ trợ đăng ký giữ chỗ cho em nha""
+"""
 Lead condition ,"
 - Successful call
   - No Pick up
