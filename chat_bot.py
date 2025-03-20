@@ -17,24 +17,6 @@ hard = pd.read_csv(r"hard - Trang tính1.csv")
 hb = pd.read_csv(r"hb - Trang tính1.csv")
 major = pd.read_csv(r"major  - Trang tính1.csv")
 
-#add pdf or csv
-csv_file = st.file_uploader("Upload csv follow format:(column 1: key word, column 2: description):", type=["csv"])
-if csv_file is not None:
-    try:
-        # file_path = save_uploaded_file(csv_file)
-        new_data = pd.read_csv(csv_file)
-        #save this to cloud 
-        df = new_data.to_csv(cloud_path, index=False)
-        st.success("CSV filed add for team success")
-        st.session_state["uploaded"] = new_data
-        exist_program["Uploaded"] = new_data
-        st.write("CSV file has been added. Keywords and Descriptions:")
-        st.dataframe(new_data)
-        # for k, d in zip(key, descriptions):
-        #     st.write(f"**{k}:** {d}")
-            # chatbot_data = load_chat_data()
-    except Exception as e:
-            st.write("Please check your data format. If issues persist, contact Quynh for assistance.")
 
 # #save the history file 
 # history_file = "data"
@@ -64,6 +46,26 @@ exist_program = {
     "hb": hb,
     "major": major,
 }
+
+#add pdf or csv
+csv_file = st.file_uploader("Upload csv follow format:(column 1: key word, column 2: description):", type=["csv"])
+if csv_file is not None:
+    try:
+        # file_path = save_uploaded_file(csv_file)
+        new_data = pd.read_csv(csv_file)
+        #save this to cloud 
+        df = new_data.to_csv(cloud_path, index=False)
+        st.success("CSV filed add for team success")
+        st.session_state["uploaded"] = new_data
+        exist_program["Uploaded"] = new_data
+        st.write("CSV file has been added. Keywords and Descriptions:")
+        st.dataframe(new_data)
+        # for k, d in zip(key, descriptions):
+        #     st.write(f"**{k}:** {d}")
+            # chatbot_data = load_chat_data()
+    except Exception as e:
+            st.write("Please check your data format. If issues persist, contact Quynh for assistance.")
+
 
 # Chatbot response class
 class Data:
