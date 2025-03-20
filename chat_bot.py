@@ -20,7 +20,7 @@ def get_csv_file():
         for file in files if file["name"].endswith(".csv")}
         return csv_file
     except requests.exceptions.RequestException as e:
-        st.error(f"Cannot work contact Quynh, Tu, Thach for debug")
+        st.error(f"Cannot fetch data. Contact Quỳnh, Tú, or Thạch for debugging.")
         return {}
 def load_data(url):
     try:
@@ -102,14 +102,20 @@ class Data:
     def description(self, keyword):
         if keyword in self.activate:
             responses = self.dataframe.loc[self.dataframe['key word'] == keyword, 'description']
-            return responses.iloc[0]
+            return responses.iloc[0] if not responses.empty else "No description available."
         else:
             return "No data available. If you want to add, please type 'add'."
-#streamlit 
-topic_options = st.selectbox("Choose a topic",list(exist_program.keys()))
-if topic_options:
-    data = Data(exist_program[topic_options])
-    select = st.selectbox("Choose a keyword", data.list_keywords())
-    if select:
-        bot_response = data.description(select)
-        st.write("Bot:", bot_response)
+# Streamlit UI Components
+if exist_program:
+    topic_options = st.selectbox("Choose a topic", list(exist_program.keys()))
+    if topic_options:
+        data = Data(exist_program[topic_options])
+        if data.list_keywords():
+            select = st.selectbox("Choose a keyword", data.list_keywords())
+            if select:
+                bot_response = data.description(select)
+                st.write("Bot:", bot_response)
+        else:
+            st.warning("No keywords available for this topic.")
+else:
+    st.error("No CSV files found. Please check the GitHub repository.")
