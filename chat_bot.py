@@ -1,52 +1,24 @@
 import pandas as pd
-import streamlit as st 
-import numpy as np 
+import streamlit as st
 import os 
-#streamlit 
+
+# Streamlit
 st.title("CC - CHATBOT")
 st.sidebar.header("Chat history")
 
-# Setup
-cc = pd.read_csv(r"cc - Trang tính1.csv") 
-program = pd.read_csv(r"program  - Trang tính1.csv") 
-other = pd.read_csv(r"other  - Trang tính1.csv")
-ts = pd.read_csv(r"ts  - Trang tính1.csv")
-hard = pd.read_csv(r"hard - Trang tính1.csv")
-hb = pd.read_csv(r"hb - Trang tính1.csv")
-major = pd.read_csv(r"major  - Trang tính1.csv")
+# Load predefined CSV files
+def load_csv(filename):
+    return pd.read_csv(filename) if os.path.exists(filename) else pd.DataFrame(columns=["key word", "description"])
 
-# #save the history file 
-# history_file = "data"
-# def load_chat_data():
-#     all_dataframes = {}
-#     for file in os.listdir(history_file):
-#         if file.endswith(".csv"):
-#             df = pd.read_csv(os.path.join(history_file, file))
-#             all_dataframes[file] = df
-#     return all_dataframes
-# def save_uploaded_file(uploaded_file):
-#     file_path = os.path.join(history_file, uploaded_file.name)
-#     with open(file_path, "wb") as f:
-#         f.write(uploaded_file.getbuffer())
-#     return file_path
-# chatbot_data = load_chat_data()
-#add pdf or csv
-csv_file = st.file_uploader("Upload csv follow format:(column 1: key word, column 2: description):", type=["csv"])
-if csv_file is not None:
-    try:
-        # file_path = save_uploaded_file(csv_file)
-        new_data = pd.read_csv(csv_file)
-        key = new_data["key word"].astype(str).tolist()
-        descriptions = new_data["description"].astype(str).tolist()
-        st.write("CSV file has been added. Keywords and Descriptions:")
-        for k, d in zip(key, descriptions):
-            st.write(f"**{k}:** {d}")
-            # chatbot_data = load_chat_data()
-    except Exception as e:
-            st.write("Please check your data format. If issues persist, contact Quynh for assistance.")
+cc = load_csv("cc - Trang tính1.csv")
+program = load_csv("program - Trang tính1.csv")
+other = load_csv("other - Trang tính1.csv")
+ts = load_csv("ts - Trang tính1.csv")
+hard = load_csv("hard - Trang tính1.csv")
+hb = load_csv("hb - Trang tính1.csv")
+major = load_csv("major - Trang tính1.csv")
 
-
-# Topics and keyword datasets
+# Lưu trữ các dataset có sẵn
 exist_program = {
     "cc": cc,
     "program": program,
@@ -57,26 +29,42 @@ exist_program = {
     "major": major,
 }
 
-# Chatbot response class
+# Upload CSV file
+uploaded_file = st.file_uploader("Upload CSV (column 1: key word, column 2: description):", type=["csv"])
+if uploaded_file is not None:
+    try:
+        new_data = pd.read_csv(uploaded_file)
+        st.session_state["uploaded_data"] = new_data  # Lưu vào session để sử dụng sau
+        st.write("CSV file has been added:")
+        st.dataframe(new_data)
+    except Exception as e:
+        st.write("Error: Please check your CSV format.")
+
+# Lưu dữ liệu CSV đã tải lên vào lịch sử chat
+if "uploaded_data" in st.session_state:
+    exist_program["uploaded"] = st.session_state["uploaded_data"]
+
+# Class để xử lý chatbot data
 class Data:
     def __init__(self, dataframe):
         self.dataframe = dataframe
         self.activate = dataframe['key word'].astype(str).tolist()  # Convert to list
-    
+
     def list_keywords(self):
         return self.activate
-    
+
     def description(self, keyword):
         if keyword in self.activate:
             responses = self.dataframe.loc[self.dataframe['key word'] == keyword, 'description']
             return responses.iloc[0]
         else:
             return "No data available. If you want to add, please type 'add'."
-#streamlit 
-topic_options = st.selectbox("Choose a topic",list(exist_program.keys()))
+
+# Hiển thị chọn topic & keyword
+topic_options = st.selectbox("Choose a topic", list(exist_program.keys()))
 if topic_options:
     data = Data(exist_program[topic_options])
     select = st.selectbox("Choose a keyword", data.list_keywords())
     if select:
         bot_response = data.description(select)
-        st.write("Bot:", bot_response) 
+        st.write("Bot:", bot_response)
