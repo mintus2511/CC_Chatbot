@@ -3,7 +3,7 @@ import streamlit as st
 import requests
 
 # Streamlit UI
-st.title("CC - CHATBOT")
+st.title("Call Center CHATBOT")
 
 # GitHub API Setup
 GITHUB_USER = "Menbeo"
