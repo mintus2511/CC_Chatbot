@@ -1,0 +1,57 @@
+key word,description
+parent,"""Chào a/c, cho em hỏi đây có phải là số đt của a/c...[tên] không ạ?
+
+Em là [tên ASA], trợ lý ban tuyển sinh của Đại học Fulbright. Em thấy a/c mới để lại thông tin liên hệ qua Facebook/Website và đang quan tâm đến chương trình cử nhân tại Fulbright, phải không ạ?""
+
+Lấy thông tin học sinh:
+
+Họ tên: None
+DOB:
+Mobile:
+Email (nếu được):
+Trường THPT:
+Ghi chú:
+Nếu phụ huynh hỏi, mình giải thích rằng xin thông tin các bạn để có lộ trình tư vấn học bổng chính xác, phù hợp với quá trình học phổ thông hiện tại của bạn."
+student,"""Chào em, cho anh/chị hỏi đây có phải là số điện thoại của bạn... không?
+
+Chào [tên], anh/chị là [tên ASA], trợ lý ban tuyển sinh của Đại học Fulbright. Anh/chị thấy em mới để lại thông tin liên hệ qua Facebook/Website và đang quan tâm đến chương trình cử nhân của Fulbright, phải không?
+
+Cảm ơn em! Nếu em còn kế hoạch tham khảo thông tin và nộp đơn vào Fulbright, anh/chị xin phép được xin thêm một số thông tin về em để có lộ trình tư vấn phù hợp với chương trình em đang học."""
+update,"CẬP NHẬT TRẠNG THÁI CUỘC GỌI
+PARENT
+""Hiện Fulbright đang có đợt tuyển sinh va xét tuyển học bổng/hỗ trợ học phí đã mở vào cuối tháng 12, và trường cũng có tổ chức một số sự kiện để tư vấn chi tiết về:
+ - Chính sách học bổng 
+ - Hướng dẫn hoàn thiện hồ sơ học bổng 
+ - Chương trình học và tư vấn giải đáp thắc mắc
+ Sự kiện của mình sẽ tổ chức như sau:
+ - online vào ngày 27/2 lúc 7PM 
+ - offline vào ngày 16/3 lúc 9AM
+ Nếu a/c mình quan tâm và thuận tiện thì có thể sắp xếp buổi offline để được tư vấn trực tiếp và kết hợp tham quan môi trường học ah
+ Hoặc a/c có thể chọn một buổi tư vấn trực tiếp 1:1 với chuyên viên tư vấn theo lịch mình chọn ah
+ Dạ không biết a/c mình sắp xếp được thời gian cho sự kiện nào để bên em hỗ trợ đăng ký giữ chỗ cho mình ah""
+STUDENT
+""Hiện Fulbright đang có đợt tuyển sinh va xét tuyển học bổng/hỗ trợ học phí đã mở vào cuối tháng 12, và trường cũng có tổ chức một số sự kiện để tư vấn chi tiết về:
+ - Chính sách học bổng 
+ - Hướng dẫn hoàn thiện hồ sơ học bổng 
+ - Chương trình học và tư vấn giải đáp thắc mắc
+ Sự kiện của mình sẽ tổ chức như sau:
+ - online vào ngày 27/2 lúc 7PM 
+ - offline vào ngày 16/3 lúc 9AM
+ Nếu e rảnh và quan tâm thì có thể sắp xếp buổi offline để được tư vấn trực tiếp và kết hợp tham quan môi trường học ah
+ Hoặc a/c có thể chọn một buổi tư vấn trực tiếp 1:1 với chuyên viên tư vấn theo lịch mình chọn ah
+ Không biết em sắp xếp được thời gian cho sự kiện nào để bên anh/chị hỗ trợ đăng ký giữ chỗ cho em nha"""
+lead condition ,"- Successful call
+  - No Pick up
+  - Busy
+  - Phone off"
+note,"- None (default)
+  - Will open App
+  - Will book appointment
+  - Will join event
+  - Interested in FUV
+  - No interested in FUV
+  - Consider
+  - No qualified
+  - Wrong number 
+  - Phone off 
+Nếu đăng ký sự kiện thì chọn offline hay online"
