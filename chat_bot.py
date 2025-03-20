@@ -8,12 +8,12 @@ st.title("CC - CHATBOT")
 #st.sidebar.header("Chat history")
 #save the csv for github work
 GITHUB_USER = "Menbeo"
-GITHUB_repo = "-HUHU-"
-GITHUB_url = "https://github.com/Menbeo/-HUHU-.git"
+GITHUB_REPO = "-HUHU-"
+GITHUB_API_URL = f"https://api.github.com/repos/{GITHUB_USER}/{GITHUB_repo}/contents/"
 
 def get_csv_file():
     try:
-        response = requests.get(GITHUB_url)
+        response = requests.get(GITHUB_API_URL)
         response.raise_for_status()
         files = response.json()
         csv_file = {file["name"]: file["download_url"]
@@ -30,7 +30,7 @@ def load_data(url):
         return None
 csv_file = get_csv_file()
 #loadi 
-exist_program = {name: load_data() for name, url in csv_file.items() if load_data(url) is not None)}
+exist_program = {name: load_data() for name, url in csv_file.items() if load_data(url) is not None}
 # Setup
 # cc = pd.read_csv(r"cc - Trang tính1.csv") 
 # program = pd.read_csv(r"program  - Trang tính1.csv") 
@@ -71,23 +71,23 @@ exist_program = {name: load_data() for name, url in csv_file.items() if load_dat
 # }
 
 #add pdf or csv
-csv_file = st.file_uploader("Upload csv follow format:(column 1: key word, column 2: description):", type=["csv"])
-if csv_file is not None:
-    try:
-        # file_path = save_uploaded_file(csv_file)
-        new_data = pd.read_csv(csv_file)
-        #save this to cloud 
-        df = new_data.to_csv(cloud_path, index=False)
-        st.success("CSV filed add for team success")
-        st.session_state["uploaded"] = new_data
-        exist_program["Uploaded"] = new_data
-        st.write("CSV file has been added. Keywords and Descriptions:")
-        st.dataframe(new_data)
-        # for k, d in zip(key, descriptions):
-        #     st.write(f"**{k}:** {d}")
-            # chatbot_data = load_chat_data()
-    except Exception as e:
-            st.write("Please check your data format. If issues persist, contact Quynh for assistance.")
+# csv_file = st.file_uploader("Upload csv follow format:(column 1: key word, column 2: description):", type=["csv"])
+# if csv_file is not None:
+#     try:
+#         # file_path = save_uploaded_file(csv_file)
+#         new_data = pd.read_csv(csv_file)
+#         #save this to cloud 
+#         df = new_data.to_csv(cloud_path, index=False)
+#         st.success("CSV filed add for team success")
+#         st.session_state["uploaded"] = new_data
+#         exist_program["Uploaded"] = new_data
+#         st.write("CSV file has been added. Keywords and Descriptions:")
+#         st.dataframe(new_data)
+#         # for k, d in zip(key, descriptions):
+#         #     st.write(f"**{k}:** {d}")
+#             # chatbot_data = load_chat_data()
+#     except Exception as e:
+#             st.write("Please check your data format. If issues persist, contact Quynh for assistance.")
 
 
 # Chatbot response class
