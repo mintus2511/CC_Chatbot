@@ -42,15 +42,16 @@ STUDENT
  Nếu em rảnh và quan tâm thì có thể sắp xếp buổi offline để được tư vấn trực tiếp và kết hợp tham quan môi trường học nha
  Hoặc anh/chị có thể chọn một buổi tư vấn trực tiếp 1:1 với chuyên viên tư vấn theo lịch mình chọn nha (Link đăng ký: https://outlook.office365.com/book/FulbrightUniversityVietnamAdmissionsOffice@fulbright.edu.vn/)
  Không biết em sắp xếp được thời gian cho sự kiện nào để bên anh/chị hỗ trợ đăng ký giữ chỗ cho em nha"""
-lead condition ,"- Successful call
+Lead condition ,"
+- Successful call
   - No Pick up
   - Busy
   - Phone off"
-note,"- None (default)
+Note,"- None (default)
   - Will open App
   - Will book appointment
   - Will join event
-  - Interested in FUV
+  - Interested in FUV: Quan tâm nhưng chưa có action
   - No interested in FUV
   - Consider
   - No qualified
