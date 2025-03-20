@@ -15,25 +15,11 @@ Email(nếu được)
 
 Trường THPT
 
-Ghi chú:
-
-
-Nếu phụ huynh hỏi, mình giải thích rằng xin thông tin các bạn để có lộ trình tư vấn học bổng chính xác, phù hợp với quá trình học phổ thông hiện tại của bạn."""
-
-Student,"""Chào em, cho anh/chị hỏi đây có phải là số điện thoại của bạn [tên] không?
-
-Chào [tên], anh/chị là [tên ASA], trợ lý ban tuyển sinh của Đại học Fulbright. Anh/chị thấy em mới để lại thông tin liên hệ qua Facebook/Website và đang quan tâm đến chương trình cử nhân của Fulbright, phải không?
-
-Cảm ơn em! Nếu em còn kế hoạch tham khảo thông tin và nộp đơn vào Fulbright, anh/chị xin phép được xin thêm một số thông tin về em để có lộ trình tư vấn phù hợp với chương trình em đang học."""
-
-Update consulting script,"""
-
-PARENT
-
 Hiện Fulbright đang có đợt tuyển sinh và xét tuyển học bổng/hỗ trợ học phí đã mở vào cuối tháng 12, và trường cũng có tổ chức một số sự kiện để tư vấn chi tiết về:
  - Chính sách học bổng 
  - Hướng dẫn hoàn thiện hồ sơ học bổng 
  - Chương trình học và tư vấn giải đáp thắc mắc
+
  Sự kiện của mình sẽ tổ chức như sau:
  - online vào ngày 27/2 lúc 7PM 
  - offline vào ngày 16/3 lúc 9AM
@@ -42,13 +28,21 @@ Hiện Fulbright đang có đợt tuyển sinh và xét tuyển học bổng/h�
  Hoặc anh/chị có thể chọn một buổi tư vấn trực tiếp 1:1 với chuyên viên tư vấn theo lịch mình chọn ạ (Link đăng ký: https://outlook.office365.com/book/FulbrightUniversityVietnamAdmissionsOffice@fulbright.edu.vn/)
  Dạ không biết anh/chị mình sắp xếp được thời gian cho sự kiện nào để bên em hỗ trợ đăng ký giữ chỗ cho mình ạ
 
+Ghi chú:
 
-STUDENT
+Nếu phụ huynh hỏi, mình giải thích rằng xin thông tin các bạn để có lộ trình tư vấn học bổng chính xác, phù hợp với quá trình học phổ thông hiện tại của bạn."""
 
-Hiện Fulbright đang có đợt tuyển sinh va xét tuyển học bổng/hỗ trợ học phí đã mở vào cuối tháng 12, và trường cũng có tổ chức một số sự kiện để tư vấn chi tiết về:
+Student,"""Chào em, cho anh/chị hỏi đây có phải là số điện thoại của bạn [tên] không?
+
+Chào [tên], anh/chị là [tên ASA], trợ lý ban tuyển sinh của Đại học Fulbright. Anh/chị thấy em mới để lại thông tin liên hệ qua Facebook/Website và đang quan tâm đến chương trình cử nhân của Fulbright, phải không?
+
+Cảm ơn em! Nếu em còn kế hoạch tham khảo thông tin và nộp đơn vào Fulbright, anh/chị xin phép được xin thêm một số thông tin về em để có lộ trình tư vấn phù hợp với chương trình em đang học.
+
+Hiện Fulbright đang có đợt tuyển sinh và xét tuyển học bổng/hỗ trợ học phí đã mở vào cuối tháng 12, và trường cũng có tổ chức một số sự kiện để tư vấn chi tiết về:
  - Chính sách học bổng 
  - Hướng dẫn hoàn thiện hồ sơ học bổng 
  - Chương trình học và tư vấn giải đáp thắc mắc
+
  Sự kiện của mình sẽ tổ chức như sau:
  - online vào ngày 27/2 lúc 7PM 
  - offline vào ngày 16/3 lúc 9AM
@@ -56,12 +50,13 @@ Hiện Fulbright đang có đợt tuyển sinh va xét tuyển học bổng/hỗ
  Nếu em rảnh và quan tâm thì có thể sắp xếp buổi offline để được tư vấn trực tiếp và kết hợp tham quan môi trường học nha
  Hoặc anh/chị có thể chọn một buổi tư vấn trực tiếp 1:1 với chuyên viên tư vấn theo lịch mình chọn nha (Link đăng ký: https://outlook.office365.com/book/FulbrightUniversityVietnamAdmissionsOffice@fulbright.edu.vn/)
  Không biết em sắp xếp được thời gian cho sự kiện nào để bên anh/chị hỗ trợ đăng ký giữ chỗ cho em nha"""
-Lead condition ,"
+
+Lead condition ,"""
 - Successful call
   - No Pick up
   - Busy
-  - Phone off"
-Note,"- None (default)
+  - Phone off"""
+Note,"""- None (default)
   - Will open App
   - Will book appointment
   - Will join event
@@ -71,4 +66,4 @@ Note,"- None (default)
   - No qualified
   - Wrong number 
   - Phone off 
-Nếu đăng ký sự kiện thì chọn offline hay online"
+Nếu đăng ký sự kiện thì chọn offline hay online"""
