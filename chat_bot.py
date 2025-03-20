@@ -30,7 +30,7 @@ def load_data(url):
         return None
 csv_file = get_csv_file()
 #loadi 
-exist_program = {name: load_data() for name, url in csv_file.items() if load_data(url) is not None)
+exist_program = {name: load_data() for name, url in csv_file.items() if load_data(url) is not None)}
 # Setup
 # cc = pd.read_csv(r"cc - Trang tính1.csv") 
 # program = pd.read_csv(r"program  - Trang tính1.csv") 
