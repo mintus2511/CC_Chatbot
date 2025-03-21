@@ -78,14 +78,14 @@ if new_data is not None:
     old_data[latest_csv_name] = new_data  # Thêm dữ liệu GitHub vào danh sách
 
 # Hiển thị dữ liệu
-if new_data:
-    st.success(f"Tìm thấy {len(new_data)} tập dữ liệu!")
+if old_data:
+    st.success(f"Tìm thấy {len(old_data)} tập dữ liệu!")
 
     # Selectbox 1: Chọn file (topic)
-    topic_choice = st.selectbox("Chọn chủ đề", [""] + list(new_data.keys()), index=0)
+    topic_choice = st.selectbox("Chọn chủ đề", [""] + list(old_data.keys()), index=0)
 
     if topic_choice:
-        selected_df = new_data[topic_choice]
+        selected_df = old_data[topic_choice]
         keywords = selected_df["key word"].astype(str).tolist()
 
         # Selectbox 2: Chọn từ khóa trong file đã chọn
