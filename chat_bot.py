@@ -10,75 +10,76 @@ GITHUB_USER = "Menbeo"
 GITHUB_REPO = "-HUHU-"
 GITHUB_API_URL = f"https://api.github.com/repos/{GITHUB_USER}/{GITHUB_REPO}/contents/"
 
-def get_csv_file():
+def get_latest_csv():
+    """Lấy file CSV mới nhất trong repo GitHub"""
     try:
         response = requests.get(GITHUB_API_URL)
         response.raise_for_status()
         files = response.json()
-        st.write(files)
-        csv_files = {file["name"]: file["download_url"]
-                     for file in files if file["name"].endswith(".csv")}
-        st.write(csv_files)
-        
+
+        # Lọc danh sách file CSV
+        csv_files = [file for file in files if file["name"].endswith(".csv")]
         if not csv_files:
-            st.warning("No CSV files found in the repository.")
-            
-        return csv_files
+            st.warning("Không có file CSV nào trong repository.")
+            return None, None
+
+        # Sắp xếp theo thời gian cập nhật gần nhất (updated_at)
+        csv_files = sorted(csv_files, key=lambda x: x.get("updated_at", ""), reverse=True)
+
+        latest_csv = csv_files[0]  # Lấy file CSV mới nhất
+        return latest_csv["name"], latest_csv["download_url"]
+
     except requests.exceptions.RequestException as e:
-        st.error("Cannot fetch data. Contact Quỳnh, Tú, or Thạch for debugging.")
-        return {}
+        st.error("Lỗi kết nối GitHub. Vui lòng kiểm tra lại.")
+        return None, None
 
 def load_data(url):
+    """Đọc dữ liệu CSV từ GitHub"""
     try:
         df = pd.read_csv(url)
-        df.columns = df.columns.str.lower().str.strip()  # Normalize column names
+        df.columns = df.columns.str.lower().str.strip()  # Chuẩn hóa tên cột
         required_columns = {"key word", "description"}
-        
+
         if not required_columns.issubset(df.columns):
-            st.error(f"CSV missing required columns: {required_columns - set(df.columns)}")
+            st.error(f"Thiếu cột bắt buộc: {required_columns - set(df.columns)}")
             return None
-        
+
         return df
-    except Exception as e:
-        st.error(f"Error loading data from {url}. Please contact Quỳnh.")
+    except Exception:
+        st.error(f"Lỗi tải file CSV từ {url}. Vui lòng kiểm tra lại.")
         return None
 
-# Load CSV files from GitHub
-csv_files = get_csv_file()
-exist_program = {name: load_data(url) for name, url in csv_files.items() if load_data(url) is not None}
+# Lấy file CSV mới nhất từ GitHub
+latest_csv_name, latest_csv_url = get_latest_csv()
+exist_program = load_data(latest_csv_url) if latest_csv_url else None
 
-# Debugging Output
-if not exist_program:
-    st.error("No valid CSV data found. Please check the repository.")
-
-# Chatbot Response Class
-class Data:
-    def __init__(self, dataframe):
-        self.dataframe = dataframe
-        self.activate = dataframe['key word'].astype(str).tolist() if 'key word' in dataframe.columns else []
-
-    def list_keywords(self):
-        return self.activate
-
-    def description(self, keyword):
-        if keyword in self.activate:
-            responses = self.dataframe.loc[self.dataframe['key word'] == keyword, 'description']
-            return responses.iloc[0] if not responses.empty else "No description available."
-        return "No data available. If you want to add, please type 'add'."
-
-# Streamlit UI Components
-if exist_program:
-    topic_options = st.selectbox("Choose a topic", list(exist_program.keys()))
+# Hiển thị dữ liệu
+if exist_program is not None:
+    st.success(f"Đang sử dụng file CSV: **{latest_csv_name}**")
     
-    if topic_options:
-        data = Data(exist_program[topic_options])
-        
-        if data.list_keywords():
-            select = st.selectbox("Choose a keyword", data.list_keywords())
-            if select:
-                bot_response = data.description(select)
-                st.write("Bot:", bot_response)
-        else:
-            st.warning("No keywords available for this topic.")
+    # Lớp chatbot xử lý dữ liệu
+    class Data:
+        def __init__(self, dataframe):
+            self.dataframe = dataframe
+            self.activate = dataframe['key word'].astype(str).tolist() if 'key word' in dataframe.columns else []
+
+        def list_keywords(self):
+            return self.activate
+
+        def description(self, keyword):
+            if keyword in self.activate:
+                responses = self.dataframe.loc[self.dataframe['key word'] == keyword, 'description']
+                return responses.iloc[0] if not responses.empty else "Không có mô tả."
+            return "Không có dữ liệu. Nếu muốn thêm, hãy nhập 'add'."
+
+    data = Data(exist_program)
+
+    if data.list_keywords():
+        select = st.selectbox("Chọn từ khóa", data.list_keywords())
+        if select:
+            bot_response = data.description(select)
+            st.write("Bot:", bot_response)
+    else:
+        st.warning("Không có từ khóa nào trong file này.")
 else:
-    st.error("No CSV files found. Please check the GitHub repository.")
+    st.error("Không tìm thấy file CSV hợp lệ. Hãy kiểm tra GitHub repository.")
