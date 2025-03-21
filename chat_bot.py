@@ -15,7 +15,6 @@ def get_latest_csv():
     try:
         response = requests.get(GITHUB_API_URL)
         response.raise_for_status()
-        st.write(response.text) 
         files = response.json()
 
         # Lọc danh sách file CSV
@@ -24,7 +23,7 @@ def get_latest_csv():
             st.warning("Không có file CSV nào trong repository.")
             return None, None
 
-        # Sắp xếp theo thời gian cập nhật gần nhất (updated_at)
+        # Sắp xếp theo thời gian cập nhật gần nhất
         csv_files = sorted(csv_files, key=lambda x: x.get("updated_at", ""), reverse=True)
 
         latest_csv = csv_files[0]  # Lấy file CSV mới nhất
@@ -50,14 +49,35 @@ def load_data(url):
         st.error(f"Lỗi tải file CSV từ {url}. Vui lòng kiểm tra lại.")
         return None
 
-# Lấy file CSV mới nhất từ GitHub
+# Lấy dữ liệu từ GitHub
 latest_csv_name, latest_csv_url = get_latest_csv()
 exist_program = load_data(latest_csv_url) if latest_csv_url else None
+
+# Upload file mới từ người dùng
+st.sidebar.header("Tải lên file CSV mới")
+uploaded_file = st.sidebar.file_uploader("Chọn file CSV", type=["csv"])
+
+if uploaded_file:
+    try:
+        new_data = pd.read_csv(uploaded_file)
+        new_data.columns = new_data.columns.str.lower().str.strip()  # Chuẩn hóa tên cột
+        required_columns = {"key word", "description"}
+
+        if required_columns.issubset(new_data.columns):
+            if exist_program is not None:
+                exist_program = pd.concat([exist_program, new_data]).drop_duplicates().reset_index(drop=True)
+            else:
+                exist_program = new_data
+            st.sidebar.success("Dữ liệu mới đã được cập nhật!")
+        else:
+            st.sidebar.error("File thiếu cột bắt buộc!")
+    except Exception:
+        st.sidebar.error("Lỗi đọc file. Hãy kiểm tra định dạng CSV.")
 
 # Hiển thị dữ liệu
 if exist_program is not None:
     st.success(f"Đang sử dụng file CSV: **{latest_csv_name}**")
-    
+
     # Lớp chatbot xử lý dữ liệu
     class Data:
         def __init__(self, dataframe):
