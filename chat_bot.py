@@ -53,7 +53,7 @@ for file_name, file_url in csv_files.items():
 
 # Hiển thị dữ liệu nếu có ít nhất 1 file hợp lệ
 if all_data:
-    #st.success(f"📂 Đã tìm thấy {len(all_data)} tập dữ liệu hợp lệ!")
+    st.success(f"📂 Đã tìm thấy {len(all_data)} tập dữ liệu hợp lệ!")
 
     # Chọn chủ đề (file CSV)
     topic_choice = st.selectbox("📌 Chọn chủ đề", [""] + list(all_data.keys()), index=0)
