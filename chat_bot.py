@@ -38,7 +38,7 @@ def load_data(url):
         
         return df
     except Exception as e:
-        st.error(f"Error loading data from {url}. Please contact Quỳnh or Tú or Thạch.")
+        st.error(f"Error loading data from {url}. Please contact Quỳnh.")
         return None
 
 # Load CSV files from GitHub
