@@ -28,7 +28,7 @@ def get_csv_file():
 
 def load_data(url):
     try:
-        df = pd.read_csv(url, encoding="ISO-8859-1")
+        df = pd.read_csv(url)
         df.columns = df.columns.str.lower().str.strip()  # Normalize column names
         required_columns = {"key word", "description"}
         
