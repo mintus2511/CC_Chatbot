@@ -11,28 +11,31 @@ GITHUB_REPO = "-HUHU-"
 GITHUB_API_URL = f"https://api.github.com/repos/{GITHUB_USER}/{GITHUB_REPO}/contents/"
 
 # Danh sách file dữ liệu cũ (đã đổi tên theo yêu cầu)
-old_files = [
-    r"ASA_Work.csv",
-    r"Admissions.csv",
-    r"CC_Script.csv",
-    r"Curriculum.csv",
-    r"Hard_Questions.csv",
-    r"Majors.csv",
-    r"Offline_Event.csv",
-    r"OtherQuestions.csv",
-    r"Scholarships.csv",
-    r"Tuition.csv"
-]
+file_mapping = {
+    "ASA_Work": r"ASA_Work.csv",
+    "Admissions": r"Admissions.csv",
+    "CC_Script": r"CC_Script.csv",
+    "Curriculum": r"Curriculum.csv",
+    "Hard_Questions": r"Hard_Questions.csv",
+    "Majors": r"Majors.csv",
+    "Offline_Event": r"Offline_Event.csv",
+    "OtherQuestions": r"OtherQuestions.csv",
+    "Scholarships": r"Scholarships.csv",
+    "Tuition": r"Tuition.csv"
+}
 
 def load_old_data():
-    """Đọc và gộp dữ liệu từ các file cũ."""
-    try:
-        df_list = [pd.read_csv(file) for file in old_files]
-        old_data = pd.concat(df_list, ignore_index=True).drop_duplicates()
-        return old_data
-    except Exception as e:
-        st.error(f"Lỗi đọc dữ liệu cũ: {e}")
-        return None
+    """Đọc tất cả dữ liệu từ file cũ và lưu theo từng topic"""
+    data = {}
+    for topic, path in file_mapping.items():
+        try:
+            df = pd.read_csv(path)
+            df.columns = df.columns.str.lower().str.strip()  # Chuẩn hóa tên cột
+            if {"key word", "description"}.issubset(df.columns):
+                data[topic] = df
+        except Exception as e:
+            st.warning(f"Không thể đọc {topic}: {e}")
+    return data
 
 def get_latest_csv():
     """Lấy file CSV mới nhất trong repo GitHub"""
@@ -44,32 +47,23 @@ def get_latest_csv():
         # Lọc danh sách file CSV
         csv_files = [file for file in files if file["name"].endswith(".csv")]
         if not csv_files:
-            st.warning("Không có file CSV nào trong repository.")
             return None, None
 
         # Sắp xếp theo thời gian cập nhật gần nhất
         csv_files = sorted(csv_files, key=lambda x: x.get("updated_at", ""), reverse=True)
-        latest_csv = csv_files[0]  # Lấy file CSV mới nhất
+        latest_csv = csv_files[0]
         return latest_csv["name"], latest_csv["download_url"]
 
-    except requests.exceptions.RequestException as e:
-        st.error("Lỗi kết nối GitHub. Vui lòng kiểm tra lại.")
+    except requests.exceptions.RequestException:
         return None, None
 
 def load_data(url):
     """Đọc dữ liệu CSV từ GitHub"""
     try:
         df = pd.read_csv(url)
-        df.columns = df.columns.str.lower().str.strip()  # Chuẩn hóa tên cột
-        required_columns = {"key word", "description"}
-
-        if not required_columns.issubset(df.columns):
-            st.error(f"Thiếu cột bắt buộc: {required_columns - set(df.columns)}")
-            return None
-
-        return df
+        df.columns = df.columns.str.lower().str.strip()
+        return df if {"key word", "description"}.issubset(df.columns) else None
     except Exception:
-        st.error(f"Lỗi tải file CSV từ {url}. Vui lòng kiểm tra lại.")
         return None
 
 # Lấy dữ liệu cũ
@@ -79,42 +73,27 @@ old_data = load_old_data()
 latest_csv_name, latest_csv_url = get_latest_csv()
 new_data = load_data(latest_csv_url) if latest_csv_url else None
 
-# Hợp nhất dữ liệu cũ và GitHub
-dataframes = [df for df in [old_data, new_data] if df is not None]
-if dataframes:
-    merged_data = pd.concat(dataframes, ignore_index=True).drop_duplicates()
-else:
-    merged_data = None
+# Gộp dữ liệu mới từ GitHub nếu có
+if new_data is not None:
+    old_data[latest_csv_name] = new_data  # Thêm dữ liệu GitHub vào danh sách
 
-# Hiển thị dữ liệu cuối cùng
-if merged_data is not None:
-    st.success(f"Dữ liệu được tổng hợp từ {len(dataframes)} nguồn!")
-    
-    # Lớp chatbot xử lý dữ liệu
-    class Data:
-        def __init__(self, dataframe):
-            self.dataframe = dataframe
-            self.activate = dataframe['key word'].astype(str).tolist() if 'key word' in dataframe.columns else []
+# Hiển thị dữ liệu
+if old_data:
+    st.success(f"Tìm thấy {len(old_data)} tập dữ liệu!")
 
-        def list_keywords(self):
-            return self.activate
+    # Selectbox 1: Chọn file (topic)
+    topic_choice = st.selectbox("Chọn chủ đề", [""] + list(old_data.keys()), index=0)
 
-        def description(self, keyword):
-            if keyword in self.activate:
-                responses = self.dataframe.loc[self.dataframe['key word'] == keyword, 'description']
-                return responses.iloc[0] if not responses.empty else "Không có mô tả."
-            return "Không có dữ liệu. Nếu muốn thêm, hãy nhập 'add'."
+    if topic_choice:
+        selected_df = old_data[topic_choice]
+        keywords = selected_df["key word"].astype(str).tolist()
 
-    data = Data(merged_data)
+        # Selectbox 2: Chọn từ khóa trong file đã chọn
+        keyword_choice = st.selectbox("Chọn từ khóa", [""] + keywords, index=0)
 
-    if data.list_keywords():
-        # Hiển thị tất cả từ khóa trong select box
-        select = st.selectbox("Chọn từ khóa", [""] + data.list_keywords(), index=0)
-        
-        if select:
-            bot_response = data.description(select)
+        if keyword_choice:
+            description = selected_df.loc[selected_df["key word"] == keyword_choice, "description"]
+            bot_response = description.iloc[0] if not description.empty else "Không có mô tả."
             st.write("Bot:", bot_response)
-    else:
-        st.warning("Không có từ khóa nào trong dữ liệu.")
 else:
     st.error("Không tìm thấy dữ liệu hợp lệ.")
