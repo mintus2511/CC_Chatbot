@@ -15,7 +15,7 @@ def get_latest_csv():
     try:
         response = requests.get(GITHUB_API_URL)
         response.raise_for_status()
-        st.write(response.status_code, response.text) 
+        st.write(response.text) 
         files = response.json()
 
         # Lọc danh sách file CSV
