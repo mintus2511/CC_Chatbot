@@ -10,6 +10,27 @@ GITHUB_USER = "Menbeo"
 GITHUB_REPO = "-HUHU-"
 GITHUB_API_URL = f"https://api.github.com/repos/{GITHUB_USER}/{GITHUB_REPO}/contents/"
 
+# Danh sách file dữ liệu cũ
+old_files = [
+    r"D:\WORK-PROJECT\data\cc - Trang tính1.csv",
+    r"D:\WORK-PROJECT\data\program  - Trang tính1.csv",
+    r"D:\WORK-PROJECT\data\other  - Trang tính1.csv",
+    r"D:\WORK-PROJECT\data\ts  - Trang tính1.csv",
+    r"D:\WORK-PROJECT\data\hard - Trang tính1.csv",
+    r"D:\WORK-PROJECT\data\hb - Trang tính1.csv",
+    r"D:\WORK-PROJECT\data\major  - Trang tính1.csv"
+]
+
+def load_old_data():
+    """Đọc và gộp dữ liệu từ các file cũ."""
+    try:
+        df_list = [pd.read_csv(file) for file in old_files]
+        old_data = pd.concat(df_list, ignore_index=True).drop_duplicates()
+        return old_data
+    except Exception as e:
+        st.error(f"Lỗi đọc dữ liệu cũ: {e}")
+        return None
+
 def get_latest_csv():
     """Lấy file CSV mới nhất trong repo GitHub"""
     try:
@@ -25,7 +46,6 @@ def get_latest_csv():
 
         # Sắp xếp theo thời gian cập nhật gần nhất
         csv_files = sorted(csv_files, key=lambda x: x.get("updated_at", ""), reverse=True)
-
         latest_csv = csv_files[0]  # Lấy file CSV mới nhất
         return latest_csv["name"], latest_csv["download_url"]
 
@@ -49,35 +69,24 @@ def load_data(url):
         st.error(f"Lỗi tải file CSV từ {url}. Vui lòng kiểm tra lại.")
         return None
 
-# Lấy dữ liệu từ GitHub
+# Lấy dữ liệu cũ
+old_data = load_old_data()
+
+# Lấy file CSV mới nhất từ GitHub
 latest_csv_name, latest_csv_url = get_latest_csv()
-exist_program = load_data(latest_csv_url) if latest_csv_url else None
+new_data = load_data(latest_csv_url) if latest_csv_url else None
 
-# Upload file mới từ người dùng
-st.sidebar.header("Tải lên file CSV mới")
-uploaded_file = st.sidebar.file_uploader("Chọn file CSV", type=["csv"])
+# Hợp nhất dữ liệu cũ và GitHub
+dataframes = [df for df in [old_data, new_data] if df is not None]
+if dataframes:
+    merged_data = pd.concat(dataframes, ignore_index=True).drop_duplicates()
+else:
+    merged_data = None
 
-if uploaded_file:
-    try:
-        new_data = pd.read_csv(uploaded_file)
-        new_data.columns = new_data.columns.str.lower().str.strip()  # Chuẩn hóa tên cột
-        required_columns = {"key word", "description"}
-
-        if required_columns.issubset(new_data.columns):
-            if exist_program is not None:
-                exist_program = pd.concat([exist_program, new_data]).drop_duplicates().reset_index(drop=True)
-            else:
-                exist_program = new_data
-            st.sidebar.success("Dữ liệu mới đã được cập nhật!")
-        else:
-            st.sidebar.error("File thiếu cột bắt buộc!")
-    except Exception:
-        st.sidebar.error("Lỗi đọc file. Hãy kiểm tra định dạng CSV.")
-
-# Hiển thị dữ liệu
-if exist_program is not None:
-    st.success(f"Đang sử dụng file CSV: **{latest_csv_name}**")
-
+# Hiển thị dữ liệu cuối cùng
+if merged_data is not None:
+    st.success(f"Dữ liệu được tổng hợp từ {len(dataframes)} nguồn!")
+    
     # Lớp chatbot xử lý dữ liệu
     class Data:
         def __init__(self, dataframe):
@@ -93,14 +102,16 @@ if exist_program is not None:
                 return responses.iloc[0] if not responses.empty else "Không có mô tả."
             return "Không có dữ liệu. Nếu muốn thêm, hãy nhập 'add'."
 
-    data = Data(exist_program)
+    data = Data(merged_data)
 
     if data.list_keywords():
-        select = st.selectbox("Chọn từ khóa", data.list_keywords())
+        # Hiển thị tất cả từ khóa trong select box
+        select = st.selectbox("Chọn từ khóa", [""] + data.list_keywords(), index=0)
+        
         if select:
             bot_response = data.description(select)
             st.write("Bot:", bot_response)
     else:
-        st.warning("Không có từ khóa nào trong file này.")
+        st.warning("Không có từ khóa nào trong dữ liệu.")
 else:
-    st.error("Không tìm thấy file CSV hợp lệ. Hãy kiểm tra GitHub repository.")
+    st.error("Không tìm thấy dữ liệu hợp lệ.")
