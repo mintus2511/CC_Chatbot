@@ -15,6 +15,7 @@ def get_csv_file():
         response = requests.get(GITHUB_API_URL)
         response.raise_for_status()
         files = response.json()
+        st.write(response.json())
         csv_files = {file["name"]: file["download_url"]
                      for file in files if file["name"].endswith(".csv")}
         
@@ -22,6 +23,7 @@ def get_csv_file():
             st.warning("No CSV files found in the repository.")
         
         return csv_files
+        st.write(csv_files)
     except requests.exceptions.RequestException as e:
         st.error("Cannot fetch data. Contact Quỳnh, Tú, or Thạch for debugging.")
         return {}
