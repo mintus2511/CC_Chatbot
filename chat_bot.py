@@ -28,7 +28,7 @@ data = load_csv_from_github(CSV_URL)
 
 if not data.empty:
     keywords = data["key word"].dropna().astype(str).unique().tolist()
-    keyword_input = st.text_input("🔍 Nhập từ khóa", "", placeholder="Gõ từ khóa...", autocomplete=keywords)
+    keyword_input = st.selectbox("🔍 Chọn từ khóa", [""] + keywords)
 
     if keyword_input:
         matched = data[data["key word"].str.lower() == keyword_input.strip().lower()]
