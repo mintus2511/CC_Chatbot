@@ -62,6 +62,6 @@ if selected_keyword:
     if not matches.empty:
         for _, row in matches.iterrows():
             st.write("🤖 **Bot:**", row["description"])
-            st.caption(f"(📂 Chủ đề: `{row['topic']}` | 🔑 Từ khóa: `{row['key word']}`)")
+            #st.caption(f"(📂 Chủ đề: `{row['topic']}` | 🔑 Từ khóa: `{row['key word']}`)")
     else:
         st.info("Không tìm thấy mô tả cho từ khóa này.")
