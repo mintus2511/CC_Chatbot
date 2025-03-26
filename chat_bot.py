@@ -4,7 +4,7 @@ import requests
 from difflib import get_close_matches
 
 # Streamlit UI
-st.title("📞 Call Center Chatbot with Autocomplete")
+st.title("📞 Call Center Chatbot")
 
 # GitHub repo setup
 GITHUB_USER = "mintus2511"
