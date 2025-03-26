@@ -7,8 +7,8 @@ from difflib import get_close_matches
 st.title("📞 Call Center Chatbot with Autocomplete")
 
 # GitHub repo setup
-GITHUB_USER = "Menbeo"
-GITHUB_REPO = "-HUHU-"
+GITHUB_USER = "mintus2511"
+GITHUB_REPO = "CC_Chatbot"
 GITHUB_API_URL = f"https://api.github.com/repos/{GITHUB_USER}/{GITHUB_REPO}/contents/"
 
 @st.cache_data(ttl=60)
