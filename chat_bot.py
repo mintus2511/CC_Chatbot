@@ -3,14 +3,15 @@ import streamlit as st
 import requests
 from streamlit_searchbox import st_searchbox
 
-# === Streamlit App Title ===
-st.title("Call Center Chatbot")
+# === Streamlit Title ===
+st.title("📞 Call Center Chatbot")
 
-# === GitHub Repo Info ===
+# === GitHub Setup ===
 GITHUB_USER = "mintus2511"
 GITHUB_REPO = "CC_Chatbot"
 GITHUB_API_URL = f"https://api.github.com/repos/{GITHUB_USER}/{GITHUB_REPO}/contents/"
 
+# === Cache GitHub CSV Links ===
 @st.cache_data(ttl=60)
 def get_csv_file_links():
     try:
@@ -25,6 +26,8 @@ def get_csv_file_links():
         st.error(f"❌ Lỗi khi kết nối tới GitHub: {e}")
         return {}
 
+# === Cache Merged CSV Data ===
+@st.cache_data(ttl=60)
 def load_csvs(csv_files):
     combined = pd.DataFrame(columns=["key word", "description", "topic"])
     for name, url in csv_files.items():
@@ -38,30 +41,40 @@ def load_csvs(csv_files):
             st.warning(f"⚠️ Lỗi đọc {name}: {e}")
     return combined
 
-# === Load Data ===
+# === Load CSVs from GitHub ===
 csv_files = get_csv_file_links()
 data = load_csvs(csv_files)
 
-# === UI with Autocomplete + Partial Matching ===
+# === Chatbot Autocomplete UI ===
 if not data.empty:
     all_keywords = sorted(data["key word"].dropna().astype(str).unique())
 
     def search_fn(user_input):
         return [kw for kw in all_keywords if user_input.lower() in kw.lower()]
 
+    # Use session_state to avoid rerunning on every key press
     selected_keyword = st_searchbox(
         search_fn,
-        placeholder="🔍 Gõ từ khóa...",
-        label="Từ khóa",
-        key="keyword_autocomplete"
+        key="keyword_search",
+        label="🔍 Gõ từ khóa",
+        placeholder="Ví dụ: học phí, quy trình tuyển sinh, thời gian tuyển sinh,...",
     )
 
-# Search all partial matches (only if something was selected/typed)
-if selected_keyword:
-    matches = data[data["key word"].str.lower().str.contains(selected_keyword.lower(), na=False)]
-    if not matches.empty:
-        for _, row in matches.iterrows():
-            st.write("🤖 **Bot:**", row["description"])
-            #st.caption(f"(📂 Chủ đề: `{row['topic']}` | 🔑 Từ khóa: `{row['key word']}`)")
-    else:
-        st.info("Không tìm thấy mô tả cho từ khóa này.")
+    # Store selected keyword in session
+    if selected_keyword:
+        st.session_state["selected_keyword"] = selected_keyword
+
+    # Trigger search only if a keyword is selected
+    if "selected_keyword" in st.session_state:
+        keyword = st.session_state["selected_keyword"]
+        matches = data[data["key word"].str.lower().str.contains(keyword.lower(), na=False)]
+
+        if not matches.empty:
+            for _, row in matches.iterrows():
+                st.write("🤖 **Bot:**", row["description"])
+                st.caption(f"(📂 Chủ đề: `{row['topic']}` | 🔑 Từ khóa: `{row['key word']}`)")
+        else:
+            st.info("Không tìm thấy mô tả cho từ khóa này.")
+else:
+    st.error("⚠️ Không tìm thấy dữ liệu hợp lệ.")
+
