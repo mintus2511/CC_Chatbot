@@ -80,7 +80,7 @@ if not data.empty:
             color: black;
         }
         .searchbox-container input:focus {
-            border-color: #1a73e8 !important;
+            border-color: #FBAD22 !important;
             outline: none !important;
             box-shadow: none !important;
         }
