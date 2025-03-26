@@ -1,11 +1,12 @@
 import pandas as pd
 import streamlit as st
 import requests
+from difflib import get_close_matches
 
 # Streamlit UI
 st.title("📞 Call Center Chatbot")
 
-# GitHub raw content API
+# GitHub repo info
 GITHUB_USER = "mintus2511"
 GITHUB_REPO = "CC_Chatbot"
 GITHUB_API_URL = f"https://api.github.com/repos/{GITHUB_USER}/{GITHUB_REPO}/contents/"
@@ -26,7 +27,7 @@ def get_csv_file_links():
         return {}
 
 def load_csvs(csv_files):
-    """Load and combine all valid CSVs with 'key word' and 'description' columns"""
+    """Load and combine all valid CSVs"""
     combined = pd.DataFrame(columns=["key word", "description", "topic"])
 
     for name, url in csv_files.items():
@@ -42,16 +43,27 @@ def load_csvs(csv_files):
     
     return combined
 
-# Load CSVs
+# Load all data
 csv_files = get_csv_file_links()
 data = load_csvs(csv_files)
 
-# Chat interaction
 if not data.empty:
-    keyword_input = st.text_input("🔍 Nhập từ khóa", placeholder="Gõ từ khóa...").strip().lower()
+    all_keywords = data["key word"].dropna().astype(str).unique().tolist()
 
-    if keyword_input:
-        matches = data[data["key word"].str.lower() == keyword_input]
+    user_input = st.text_input("🔍 Nhập từ khóa", placeholder="Gõ từ khóa...").strip().lower()
+
+    # Suggest similar keywords
+    suggestions = get_close_matches(user_input, all_keywords, n=5, cutoff=0.5) if user_input else []
+
+    if suggestions:
+        keyword_choice = st.selectbox("🔎 Có phải bạn muốn hỏi về:", suggestions)
+    else:
+        keyword_choice = None
+
+    # Find response
+    selected_keyword = keyword_choice or user_input
+    if selected_keyword:
+        matches = data[data["key word"].str.lower() == selected_keyword.lower()]
         if not matches.empty:
             for _, row in matches.iterrows():
                 st.write("🤖 **Bot:**", row["description"])
