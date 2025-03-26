@@ -56,14 +56,12 @@ if not data.empty:
         key="keyword_autocomplete"
     )
 
-    # Search all partial matches
-    if selected_keyword:
-        matches = data[data["key word"].str.lower().str.contains(selected_keyword.lower())]
-        if not matches.empty:
-            for _, row in matches.iterrows():
-                st.write("🤖 **Bot:**", row["description"])
-                st.caption(f"(📂 Chủ đề: `{row['topic']}` | 🔑 Từ khóa: `{row['key word']}`)")
-        else:
-            st.info("Không tìm thấy mô tả cho từ khóa này.")
-else:
-    st.error("⚠️ Không tìm thấy dữ liệu hợp lệ.")
+# Search all partial matches (only if something was selected/typed)
+if selected_keyword:
+    matches = data[data["key word"].str.lower().str.contains(selected_keyword.lower(), na=False)]
+    if not matches.empty:
+        for _, row in matches.iterrows():
+            st.write("🤖 **Bot:**", row["description"])
+            st.caption(f"(📂 Chủ đề: `{row['topic']}` | 🔑 Từ khóa: `{row['key word']}`)")
+    else:
+        st.info("Không tìm thấy mô tả cho từ khóa này.")
