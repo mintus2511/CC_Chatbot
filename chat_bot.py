@@ -4,11 +4,11 @@ import requests
 from difflib import get_close_matches
 
 # Streamlit UI
-st.title("📞 Call Center Chatbot")
+st.title("📞 Call Center Chatbot with Autocomplete")
 
-# GitHub repo info
-GITHUB_USER = "mintus2511"
-GITHUB_REPO = "CC_Chatbot"
+# GitHub repo setup
+GITHUB_USER = "Menbeo"
+GITHUB_REPO = "-HUHU-"
 GITHUB_API_URL = f"https://api.github.com/repos/{GITHUB_USER}/{GITHUB_REPO}/contents/"
 
 @st.cache_data(ttl=60)
@@ -43,25 +43,23 @@ def load_csvs(csv_files):
     
     return combined
 
-# Load all data
+# Load data
 csv_files = get_csv_file_links()
 data = load_csvs(csv_files)
 
+# UI: Autocomplete-style interaction
 if not data.empty:
-    all_keywords = data["key word"].dropna().astype(str).unique().tolist()
+    all_keywords = sorted(data["key word"].dropna().astype(str).unique().tolist())
+    user_input = st.text_input("🔍 Gõ từ khóa (bot sẽ gợi ý khi bạn nhập)...", "")
 
-    user_input = st.text_input("🔍 Nhập từ khóa", placeholder="Gõ từ khóa...").strip().lower()
-
-    # Suggest similar keywords
-    suggestions = get_close_matches(user_input, all_keywords, n=5, cutoff=0.5) if user_input else []
+    suggestions = get_close_matches(user_input, all_keywords, n=5, cutoff=0.3) if user_input else []
 
     if suggestions:
-        keyword_choice = st.selectbox("🔎 Có phải bạn muốn hỏi về:", suggestions)
+        suggestion_choice = st.selectbox("🔎 Có phải bạn muốn hỏi về:", suggestions)
+        selected_keyword = suggestion_choice
     else:
-        keyword_choice = None
+        selected_keyword = user_input
 
-    # Find response
-    selected_keyword = keyword_choice or user_input
     if selected_keyword:
         matches = data[data["key word"].str.lower() == selected_keyword.lower()]
         if not matches.empty:
