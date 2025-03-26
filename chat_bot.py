@@ -43,15 +43,14 @@ def load_csvs(csv_files):
 csv_files = get_csv_file_links()
 data = load_csvs(csv_files)
 
-# === Check for Duplicate Descriptions ===
-if not data.empty:
-    dupes = data[data.duplicated("description", keep=False)].sort_values("description")
+# === Check for duplicate descriptions across all CSVs
+dupes = data[data.duplicated("description", keep=False)].sort_values("description")
 
-    if not dupes.empty:
+# ✅ Show warning ONLY if there are actual duplicates
+if not dupes.empty:
     st.warning(f"🚨 Có {dupes['description'].nunique()} mô tả bị trùng lặp trong các file CSV!")
-        with st.expander("📋 Xem mô tả trùng lặp"):
-            st.dataframe(dupes)
-
+    with st.expander("📋 Xem mô tả trùng lặp"):
+        st.dataframe(dupes)
     # === Autocomplete Search UI ===
     all_keywords = sorted(data["key word"].dropna().astype(str).unique())
 
