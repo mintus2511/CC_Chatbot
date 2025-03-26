@@ -69,33 +69,12 @@ if not data.empty:
     def search_fn(user_input):
         return [kw for kw in all_keywords if user_input.lower() in kw.lower()]
 
-    # === Custom CSS to make search box outline only ===
-    st.markdown("""
-        <style>
-        .searchbox-container input {
-            background-color: transparent !important;
-            border: 2px solid #ccc !important;
-            border-radius: 5px;
-            padding: 8px;
-            color: black;
-        }
-        .searchbox-container input:focus {
-            border-color: #FBAD22 !important;
-            outline: none !important;
-            box-shadow: none !important;
-        }
-        </style>
-    """, unsafe_allow_html=True)
-
-    with st.container():
-        st.markdown('<div class="searchbox-container">', unsafe_allow_html=True)
-        selected_keyword = st_searchbox(
-            search_fn,
-            key="keyword_search",
-            label="🔍 Gõ từ khóa",
-            placeholder="Ví dụ: học bổng, học phí..."
-        )
-        st.markdown('</div>', unsafe_allow_html=True)
+    selected_keyword = st_searchbox(
+        search_fn,
+        key="keyword_search",
+        label="🔍 Gõ từ khóa",
+        placeholder="Ví dụ: học bổng, học phí..."
+    )
 
     if selected_keyword:
         st.session_state["selected_keyword"] = selected_keyword
@@ -107,15 +86,15 @@ if not data.empty:
         if not matches.empty:
             for _, row in matches.iterrows():
                 st.write("🤖 **Bot:**", row["description"])
-                # st.caption(f"(📂 Chủ đề: `{row['topic']}` | 🔑 Từ khóa: `{row['key word']}`)")
+                #st.caption(f"(📂 Chủ đề: {row['topic']} | 🔑 Từ khóa: {row['key word']})")
         else:
             st.info("Không tìm thấy mô tả cho từ khóa này.")
 else:
     st.error("⚠️ Không tìm thấy dữ liệu hợp lệ.")
 
 # === (Optional) Dev View: See removed duplicates ===
-# with st.expander("🛠️ [Dev] Xem các mô tả trùng lặp đã bị xóa", expanded=False):
-#     if not removed_duplicates.empty:
-#         st.dataframe(removed_duplicates)
-#     else:
-#         st.write("✅ Không có mô tả nào bị trùng lặp.")
+#with st.expander("🛠️ [Dev] Xem các mô tả trùng lặp đã bị xóa", expanded=False):
+    #if not removed_duplicates.empty:
+        #st.dataframe(removed_duplicates)
+    #else:
+        #st.write("✅ Không có mô tả nào bị trùng lặp.")
