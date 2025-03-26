@@ -93,8 +93,8 @@ else:
     st.error("⚠️ Không tìm thấy dữ liệu hợp lệ.")
 
 # === (Optional) Dev View: See removed duplicates ===
-with st.expander("🛠️ [Dev] Xem các mô tả trùng lặp đã bị xóa", expanded=False):
-    if not removed_duplicates.empty:
-        st.dataframe(removed_duplicates)
-    else:
-        st.write("✅ Không có mô tả nào bị trùng lặp.")
+#with st.expander("🛠️ [Dev] Xem các mô tả trùng lặp đã bị xóa", expanded=False):
+    #if not removed_duplicates.empty:
+        #st.dataframe(removed_duplicates)
+    #else:
+        #st.write("✅ Không có mô tả nào bị trùng lặp.")
