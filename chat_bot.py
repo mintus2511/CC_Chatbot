@@ -50,7 +50,7 @@ data = load_csvs(csv_files)
 # UI: Autocomplete-style interaction
 if not data.empty:
     all_keywords = sorted(data["key word"].dropna().astype(str).unique().tolist())
-    user_input = st.text_input("🔍 Gõ từ khóa (bot sẽ gợi ý khi bạn nhập)...", "")
+    user_input = st.text_input("🔍 Gõ từ khóa...", "")
 
     suggestions = get_close_matches(user_input, all_keywords, n=5, cutoff=0.3) if user_input else []
 
