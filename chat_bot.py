@@ -6,8 +6,8 @@ import requests
 st.title("Call Center CHATBOT")
 
 # GitHub raw CSV file
-GITHUB_USER = "Menbeo"
-GITHUB_REPO = "-HUHU-"
+GITHUB_USER = "mintus2511"
+GITHUB_REPO = "CC_Chatbot"
 CSV_FILE_NAME = "combined_data.csv"  # Your single CSV file
 CSV_URL = f"https://raw.githubusercontent.com/{GITHUB_USER}/{GITHUB_REPO}/main/{CSV_FILE_NAME}"
 
