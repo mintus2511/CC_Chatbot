@@ -48,7 +48,7 @@ if not data.empty:
     dupes = data[data.duplicated("description", keep=False)].sort_values("description")
 
     if not dupes.empty:
-        st.warning(f"🚨 Có {dupes['description'].nunique()} mô tả bị trùng lặp trong các file CSV!")
+    st.warning(f"🚨 Có {dupes['description'].nunique()} mô tả bị trùng lặp trong các file CSV!")
         with st.expander("📋 Xem mô tả trùng lặp"):
             st.dataframe(dupes)
 
