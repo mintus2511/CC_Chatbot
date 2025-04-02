@@ -128,11 +128,11 @@ if not data.empty:
                     st.rerun()
                 pin_icon = "📌" if kw in st.session_state["pinned_keywords"] else "☆"
                 if cols[1].button(pin_icon, key=f"pin-{topic}-{kw}"):
-    if kw in st.session_state["pinned_keywords"]:
-        st.session_state["pinned_keywords"].remove(kw)
-    else:
-        st.session_state["pinned_keywords"].insert(0, kw)
-    # ⚡ Cải thiện hiệu suất: không cần st.rerun() ở đây
+                    if kw in st.session_state["pinned_keywords"]:
+                        st.session_state["pinned_keywords"].remove(kw)
+                    else:
+                        st.session_state["pinned_keywords"].insert(0, kw)
+                    # ⚡ Cải thiện hiệu suất: không cần st.rerun() ở đây
 
     # === Search box ===
     def search_fn(user_input):
