@@ -5,7 +5,7 @@ from streamlit_searchbox import st_searchbox
 
 # === App Title ===
 st.set_page_config(page_title="Call Center Chatbot", layout="wide")
-st.title("\ud83d\udcde Call Center Chatbot")
+st.title("📞 Call Center Chatbot")
 
 # === Session state setup ===
 if "selected_keyword" not in st.session_state:
@@ -15,11 +15,24 @@ if "pinned_keywords" not in st.session_state:
 if "multi_filter_keywords" not in st.session_state:
     st.session_state["multi_filter_keywords"] = []
 
+# === User Guide ===
+with st.expander("ℹ️ Hướng dẫn sử dụng chatbot", expanded=False):
+    st.info("""
+    **📘 Call Center Chatbot - Hướng Dẫn Sử Dụng**
+
+    **1. Gõ hoặc chọn từ khóa**  
+    🔍 Bạn có thể gõ từ khóa, lọc nhiều từ hoặc nhấn từ khóa đã ghim ở thanh bên trái để xem mô tả.
+
+    **2. Dữ liệu tự động cập nhật**  
+    📂 Dữ liệu được lấy từ GitHub và làm sạch trước khi hiển thị.
+    """)
+
 # === GitHub Repo Info ===
 GITHUB_USER = "mintus2511"
 GITHUB_REPO = "CC_Chatbot"
 GITHUB_API_URL = f"https://api.github.com/repos/{GITHUB_USER}/{GITHUB_REPO}/contents/"
 
+# === Step 1: Get CSV files from GitHub ===
 @st.cache_data(ttl=60)
 def get_csv_file_links():
     try:
@@ -37,9 +50,10 @@ def get_csv_file_links():
             for file in sorted_csvs
         }
     except Exception as e:
-        st.error(f"\u274c L\u1ed7i khi k\u1ebft n\u1ed1i t\u1edbi GitHub: {e}")
+        st.error(f"❌ Lỗi khi kết nối tới GitHub: {e}")
         return {}
 
+# === Step 2: Load & clean CSVs ===
 @st.cache_data(ttl=60)
 def load_csvs(csv_files):
     combined = pd.DataFrame(columns=["key word", "description", "topic"])
@@ -52,52 +66,55 @@ def load_csvs(csv_files):
                 df["topic"] = name.replace(".csv", "")
                 combined = pd.concat([combined, df[["key word", "description", "topic"]]], ignore_index=True)
         except Exception as e:
-            st.warning(f"\u26a0\ufe0f L\u1ed7i \u0111\u1ecdc {name}: {e}")
+            st.warning(f"⚠️ Lỗi đọc {name}: {e}")
 
     combined = combined.drop_duplicates(subset="key word", keep="last")
     combined = combined.drop_duplicates(subset="description", keep="first")
 
     return combined
 
-# === Load data ===
+# === Step 3: Load data ===
 csv_files = get_csv_file_links()
 data = load_csvs(csv_files)
 
+# === Step 4: Setup helper ===
+def set_selected_keyword(keyword):
+    st.session_state["selected_keyword"] = keyword
+
+# === Step 5: UI and logic ===
 if not data.empty:
     all_keywords = sorted(data["key word"].dropna().astype(str).unique())
     all_topics = sorted(data["topic"].dropna().unique())
 
-    def set_selected_keyword(keyword):
-        st.session_state["selected_keyword"] = keyword
-
-    # === Sidebar ===
     with st.sidebar:
-        st.markdown("## \ud83d\udd39 T\u1ef1 ch\u1ecdn nhanh")
+        st.markdown("## 📌 Tính năng mở rộng")
 
-        # === Pin Area ===
+        # Pinned Keywords
         if st.session_state["pinned_keywords"]:
-            st.markdown("### \ud83d\udccc T\u1eeb kho\u00e1 \u0111\u00e3 ghim")
+            st.markdown("### 📌 Từ khóa đã ghim")
             for pk in st.session_state["pinned_keywords"]:
-                if st.button(f"\ud83d\udd10 {pk}", key=f"pin-{pk}"):
+                if st.button(f"📍 {pk}", key=f"pin-{pk}"):
                     set_selected_keyword(pk)
+                    st.rerun()
 
-        # === Multi-filter select ===
-        st.markdown("### \ud83e\uddf0 L\u1ecdc nhi\u1ec1u t\u1eeb kho\u00e1")
-        selected_multi = st.multiselect("Ch\u1ecdn nhi\u1ec1u t\u1eeb kho\u00e1:", all_keywords)
+        # Multi-filter
+        st.markdown("### 🧠 Lọc nhiều từ khóa")
+        selected_multi = st.multiselect("Chọn nhiều từ khóa:", all_keywords)
         st.session_state["multi_filter_keywords"] = selected_multi
 
-        # === Browse by topic ===
-        st.markdown("### \ud83d\udcc2 Duy\u1ec7t theo ch\u1ee7 \u0111\u1ec1")
+        # Browse by topic and pin
+        st.markdown("### 📚 Danh mục theo chủ đề")
         for topic in all_topics:
-            with st.expander(f"\ud83d\udcc1 {topic}", expanded=False):
+            with st.expander(f"📁 {topic}", expanded=False):
                 topic_data = data[data["topic"] == topic]
                 topic_keywords = sorted(topic_data["key word"].dropna().astype(str).unique())
                 for kw in topic_keywords:
                     cols = st.columns([0.8, 0.2])
-                    if cols[0].button(f"{kw}", key=f"kw-{topic}-{kw}"):
+                    if cols[0].button(f"🔑 {kw}", key=f"kw-{topic}-{kw}"):
                         set_selected_keyword(kw)
-                    pin_label = "\ud83d\udccc" if kw in st.session_state["pinned_keywords"] else "\u2606"
-                    if cols[1].button(pin_label, key=f"pin-btn-{topic}-{kw}"):
+                        st.rerun()
+                    pin_icon = "📌" if kw in st.session_state["pinned_keywords"] else "☆"
+                    if cols[1].button(pin_icon, key=f"pin-{topic}-{kw}"):
                         if kw in st.session_state["pinned_keywords"]:
                             st.session_state["pinned_keywords"].remove(kw)
                         else:
@@ -110,26 +127,26 @@ if not data.empty:
     selected_keyword = st_searchbox(
         search_fn,
         key="keyword_search",
-        label="\ud83d\udd0d G\u00f5 t\u1eeb kho\u00e1",
-        placeholder="V\u00ed d\u1ee5: h\u1ecdc ph\u00ed, h\u1ecdc b\u1ed5ng..."
+        label="🔍 Gõ từ khóa để tìm nhanh",
+        placeholder="Ví dụ: học phí, học bổng..."
     )
     if selected_keyword:
         set_selected_keyword(selected_keyword)
 
-    # === Display Results ===
+    # === Show chatbot responses ===
     if st.session_state["multi_filter_keywords"]:
-        st.subheader("\ud83d\udd0d K\u1ebf t\u1ee3 theo nhi\u1ec1u t\u1eeb kho\u00e1:")
+        st.subheader("📋 Kết quả theo nhiều từ khóa:")
         for kw in st.session_state["multi_filter_keywords"]:
             matches = data[data["key word"].str.lower().str.contains(kw.lower(), na=False)]
             for _, row in matches.iterrows():
-                st.write(f"\ud83e\udd16 **{kw}**: {row['description']}")
+                st.write(f"🤖 **{kw}**: {row['description']}")
     elif st.session_state["selected_keyword"]:
         kw = st.session_state["selected_keyword"]
         matches = data[data["key word"].str.lower().str.contains(kw.lower(), na=False)]
         if not matches.empty:
             for _, row in matches.iterrows():
-                st.write("\ud83e\udd16 **Bot:**", row["description"])
+                st.write("🤖 **Bot:**", row["description"])
         else:
-            st.info("\u26a0\ufe0f Kh\u00f4ng t\u00ecm th\u1ea5y m\u00f4 t\u1ea3 cho t\u1eeb kho\u00e1 n\u00e0y.")
+            st.info("⚠️ Không tìm thấy mô tả cho từ khóa này.")
 else:
-    st.error("\u26a0\ufe0f Kh\u00f4ng t\u00ecm th\u1ea5y d\u1eef li\u1ec7u h\u1ee3p l\u1ec7.")
+    st.error("⚠️ Không tìm thấy dữ liệu hợp lệ.")
