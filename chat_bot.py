@@ -117,12 +117,13 @@ if not data.empty:
         placeholder="Ví dụ: học phí, học bổng..."
     )
 
+    # === If search box returns a keyword, update selection
     if selected_keyword:
         set_selected_keyword(selected_keyword)
 
-    # === Show chatbot response ===
-    if st.session_state["selected_keyword"]:
-        keyword = st.session_state["selected_keyword"]
+    # === Show chatbot response (always from session_state)
+    keyword = st.session_state.get("selected_keyword")
+    if keyword:
         matches = data[data["key word"].str.lower().str.contains(keyword.lower(), na=False)]
 
         if not matches.empty:
