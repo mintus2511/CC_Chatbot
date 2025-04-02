@@ -68,15 +68,14 @@ if "trigger_display" not in st.session_state:
 # === Chat Display Setup ===
 def display_bot_response(keyword, description, topic):
     st.chat_message("user").markdown(f"🔍 **Từ khóa:** `{keyword}`")
-    st.chat_message("assistant").markdown(
-        f"**📂 Chủ đề:** `{topic}`\n\n{description}"
-    )
+    st.chat_message("assistant").markdown(f"**📂 Chủ đề:** `{topic}`
+
+{description}")
     st.session_state["chat_history"].append({
         "keyword": keyword,
         "description": description,
         "topic": topic
     })
-
 
 # === User Guide ===
 with st.expander("ℹ️ Hướng dẫn sử dụng chatbot", expanded=False):
@@ -213,11 +212,13 @@ if not data.empty:
 else:
     st.error("⚠️ Không tìm thấy dữ liệu hợp lệ.")
 
-# === Hiển thị lịch sử hội thoại ===
+# === Hiển thị lịch sử hội thoại (ẩn mặc định và có nút xóa) ===
 if st.session_state["chat_history"]:
     st.markdown("---")
-    st.subheader("💬 Lịch sử cuộc trò chuyện")
-    for msg in st.session_state["chat_history"]:
-        st.chat_message("user").markdown(f"🔍 **Từ khóa:** `{msg['keyword']}`")
-        st.chat_message("assistant").markdown(f"**📂 Chủ đề:** `{msg['topic']}`\n\n{msg['description']}")
-
+    with st.expander("💬 Xem lại lịch sử cuộc trò chuyện", expanded=False):
+        if st.button("🗑️ Xóa lịch sử cuộc trò chuyện"):
+            st.session_state["chat_history"] = []
+            st.rerun()
+        for msg in st.session_state["chat_history"]:
+            st.chat_message("user").markdown(f"🔍 **Từ khóa:** `{msg['keyword']}`")
+            st.chat_message("assistant").markdown(f"**📂 Chủ đề:** `{msg['topic']}`\n\n{msg['description']}")
