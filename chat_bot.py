@@ -52,6 +52,8 @@ def save_pinned_keywords(pins):
         json.dump(all_pins, f)
 
 # === Session state setup ===
+if "chat_history" not in st.session_state:
+    st.session_state["chat_history"] = []
 if "selected_keyword" not in st.session_state:
     st.session_state["selected_keyword"] = None
 if "pinned_keywords" not in st.session_state:
@@ -65,14 +67,15 @@ if "trigger_display" not in st.session_state:
 
 # === Chat Display Setup ===
 def display_bot_response(keyword, description, topic):
-    with st.container():
-        st.markdown(f"""
-        <div style='background-color:#f4f4f4;padding:15px;border-radius:10px;margin-bottom:10px;'>
-            <b>🔑 {keyword}</b><br>
-            <i>📂 Chủ đề:</i> <code>{topic}</code><br><br>
-            {description}
-        </div>
-        """, unsafe_allow_html=True)
+    st.chat_message("user").markdown(f"🔍 **Từ khóa:** `{keyword}`")
+    st.chat_message("assistant").markdown(f"**📂 Chủ đề:** `{topic}`
+
+{description}")
+    st.session_state["chat_history"].append({
+        "keyword": keyword,
+        "description": description,
+        "topic": topic
+    })
 
 # === User Guide ===
 with st.expander("ℹ️ Hướng dẫn sử dụng chatbot", expanded=False):
@@ -208,3 +211,13 @@ if not data.empty:
             st.info("⚠️ Không tìm thấy mô tả cho từ khóa này.")
 else:
     st.error("⚠️ Không tìm thấy dữ liệu hợp lệ.")
+
+# === Hiển thị lịch sử hội thoại ===
+if st.session_state["chat_history"]:
+    st.markdown("---")
+    st.subheader("💬 Lịch sử cuộc trò chuyện")
+    for msg in st.session_state["chat_history"]:
+        st.chat_message("user").markdown(f"🔍 **Từ khóa:** `{msg['keyword']}`")
+        st.chat_message("assistant").markdown(f"**📂 Chủ đề:** `{msg['topic']}`
+
+{msg['description']}")
