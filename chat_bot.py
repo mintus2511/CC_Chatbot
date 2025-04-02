@@ -15,17 +15,12 @@ with st.expander("ℹ️ Hướng dẫn sử dụng chatbot", expanded=False):
     🔍 Gõ từ khóa vào ô tìm kiếm (ví dụ: *học phí, học bổng, đăng ký, lịch học*...).  
     Chatbot sẽ tự động gợi ý những từ phù hợp.
 
-    **2. Xem câu trả lời**  
-    🤖 Sau khi chọn từ khóa, chatbot sẽ hiển thị câu trả lời tương ứng.  
-    Nếu có nhiều kết quả phù hợp, tất cả sẽ được hiển thị.
+    **2. Hoặc chọn từ khóa ở thanh bên**  
+    📂 Chọn một chủ đề và từ khóa trong thanh bên trái để xem câu trả lời.
 
     **3. Dữ liệu tự động cập nhật**  
     📂 Dữ liệu được lấy từ GitHub và làm sạch trước khi hiển thị.  
     Hệ thống chỉ giữ lại phiên bản mới nhất của mỗi từ khóa.
-
-    **Lưu ý:**  
-    - Nếu gặp lỗi khi kết nối, vui lòng kiểm tra kết nối mạng hoặc thử lại sau.  
-    - Hãy nhập từ khóa ngắn gọn hoặc phổ biến để tăng độ chính xác.
 
     **🛠 Góp ý & Báo lỗi**  
     Vui lòng liên hệ nhóm phát triển tại: [GitHub Repo](https://github.com/Menbeo/-HUHU-)
@@ -75,7 +70,7 @@ def load_csvs(csv_files):
     # ✅ Keep only the latest version of each "key word"
     combined = combined.drop_duplicates(subset="key word", keep="last")
 
-    # ✅ Optional clean-up: remove duplicate descriptions
+    # ✅ Remove duplicate descriptions
     dupes = combined[combined.duplicated("description", keep=False)].copy()
     removed_duplicates = dupes[dupes.duplicated("description", keep="first")]
     cleaned_data = combined.drop_duplicates(subset="description", keep="first")
@@ -86,40 +81,35 @@ def load_csvs(csv_files):
 csv_files = get_csv_file_links()
 data, removed_duplicates = load_csvs(csv_files)
 
-# === Step 4: Chatbot UI with Sidebar ===
+# === Step 4: UI Logic ===
 if not data.empty:
     all_keywords = sorted(data["key word"].dropna().astype(str).unique())
+    all_topics = sorted(data["topic"].dropna().unique())
 
-    # === Sidebar: Topic/Keyword filter for search ===
-    with st.sidebar.expander("🔍 Bộ lọc từ khóa", expanded=False):
-        st.markdown("Bạn có thể chọn nhanh theo chủ đề và từ khóa")
+    # === SIDEBAR: Topic & Keyword Picker ===
+    with st.sidebar:
+        with st.expander("🎯 Chọn nhanh theo chủ đề & từ khóa", expanded=True):
+            selected_topic = st.selectbox("📁 Chủ đề", [""] + all_topics)
 
-        all_topics = sorted(data["topic"].dropna().unique())
-        selected_topic = st.selectbox("Chọn chủ đề", ["Tất cả"] + all_topics)
+            if selected_topic:
+                topic_data = data[data["topic"] == selected_topic]
+                topic_keywords = sorted(topic_data["key word"].dropna().astype(str).unique())
+                selected_kw = st.selectbox("🔑 Từ khóa", [""] + topic_keywords)
 
-        if selected_topic != "Tất cả":
-            filtered_data = data[data["topic"] == selected_topic]
-        else:
-            filtered_data = data
+                if selected_kw:
+                    st.session_state["selected_keyword"] = selected_kw
 
-        topic_keywords = sorted(filtered_data["key word"].dropna().astype(str).unique())
-        selected_sidebar_keyword = st.selectbox("🔑 Chọn từ khóa", [""] + topic_keywords)
+        with st.expander("📚 Danh mục tất cả từ khóa", expanded=False):
+            st.markdown("Dưới đây là toàn bộ danh sách từ khóa theo từng chủ đề:")
 
-        if selected_sidebar_keyword:
-            st.session_state["selected_keyword"] = selected_sidebar_keyword
+            for topic in all_topics:
+                st.markdown(f"#### 📁 {topic}")
+                topic_data = data[data["topic"] == topic]
+                keywords = sorted(topic_data["key word"].dropna().astype(str).unique())
+                for kw in keywords:
+                    st.markdown(f"- 🔑 `{kw}`")
 
-    # === Sidebar: Full keyword directory grouped by topic ===
-    with st.sidebar.expander("📂 Danh mục từ khóa theo chủ đề", expanded=False):
-        st.markdown("### 📋 Tất cả các chủ đề và từ khóa:")
-
-        for topic in sorted(data["topic"].dropna().unique()):
-            st.markdown(f"#### 📁 {topic}")
-            topic_data = data[data["topic"] == topic]
-            keywords = sorted(topic_data["key word"].dropna().astype(str).unique())
-            for kw in keywords:
-                st.markdown(f"- 🔑 `{kw}`")
-
-    # === Main search UI ===
+    # === MAIN SEARCH BOX ===
     def search_fn(user_input):
         return [kw for kw in all_keywords if user_input.lower() in kw.lower()]
 
@@ -127,13 +117,13 @@ if not data.empty:
         search_fn,
         key="keyword_search",
         label="🔍 Gõ từ khóa",
-        placeholder="Ví dụ: học bổng, học phí..."
+        placeholder="Ví dụ: học phí, học bổng, đăng ký..."
     )
 
     if selected_keyword:
         st.session_state["selected_keyword"] = selected_keyword
 
-    # === Display chatbot response ===
+    # === RESULT: Show chatbot response ===
     if "selected_keyword" in st.session_state:
         keyword = st.session_state["selected_keyword"]
         matches = data[data["key word"].str.lower().str.contains(keyword.lower(), na=False)]
@@ -142,15 +132,7 @@ if not data.empty:
             st.subheader(f"Kết quả cho từ khóa: `{keyword}`")
             for _, row in matches.iterrows():
                 st.write("🤖 **Bot:**", row["description"])
-                # st.caption(f"(📂 Chủ đề: {row['topic']} | 🔑 Từ khóa: {row['key word']})")
         else:
             st.info("Không tìm thấy mô tả cho từ khóa này.")
 else:
     st.error("⚠️ Không tìm thấy dữ liệu hợp lệ.")
-
-# === (Optional) Dev View: See removed duplicates ===
-# with st.expander("🛠️ [Dev] Xem các mô tả trùng lặp đã bị xóa", expanded=False):
-#     if not removed_duplicates.empty:
-#         st.dataframe(removed_duplicates)
-#     else:
-#         st.write("✅ Không có mô tả nào bị trùng lặp.")
