@@ -123,42 +123,44 @@ if st.session_state["is_authorized"]:
         )
 
         uploaded_file = st.file_uploader("Chọn file CSV", type="csv")
-    if uploaded_file is not None:
-        try:
-            update_df = pd.read_csv(uploaded_file)
-            update_df.columns = update_df.columns.str.lower().str.strip()
-            if {"key word", "description"}.issubset(update_df.columns):
-                if "uploaded_data" in st.session_state:
-                    old_df = st.session_state["uploaded_data"]
-                elif os.path.exists(UPLOADED_FILE):
-                    old_df = pd.read_csv(UPLOADED_FILE)
-                    old_df.columns = old_df.columns.str.lower().str.strip()
+    if co_action == "📤 Tải file CSV mới":
+        uploaded_file = st.file_uploader("Chọn file CSV", type="csv")
+        if uploaded_file is not None:
+            try:
+                update_df = pd.read_csv(uploaded_file)
+                update_df.columns = update_df.columns.str.lower().str.strip()
+                if {"key word", "description"}.issubset(update_df.columns):
+                    if "uploaded_data" in st.session_state:
+                        old_df = st.session_state["uploaded_data"]
+                    elif os.path.exists(UPLOADED_FILE):
+                        old_df = pd.read_csv(UPLOADED_FILE)
+                        old_df.columns = old_df.columns.str.lower().str.strip()
+                    else:
+                        old_df = pd.DataFrame(columns=["key word", "description", "topic"])
+
+                    if "topic" not in update_df.columns:
+                        update_df["topic"] = None
+
+                    if st.session_state["upload_mode"] == "🔄 Cập nhật từ khóa đã có":
+                        merged_df = pd.merge(update_df, old_df[['key word', 'topic']], on='key word', how='left', suffixes=('', '_old'))
+                        merged_df['topic'] = merged_df['topic'].combine_first(merged_df['topic_old'])
+                        merged_df.drop(columns=['topic_old'], inplace=True)
+                        merged_df['topic'] = merged_df['topic'].fillna('Tải lên')
+                    else:
+                        default_topic = os.path.splitext(uploaded_file.name)[0]
+                        custom_topic = st.text_input("📝 Đặt tên cho topic mới:", value=default_topic)
+                        update_df['topic'] = custom_topic
+                        merged_df = update_df
+
+                    st.session_state["uploaded_data"] = merged_df[["key word", "description", "topic"]]
+                    merged_df.to_csv(UPLOADED_FILE, index=False)
+                    st.success("✅ File đã được tải lên và lưu trữ thành công.")
                 else:
-                    old_df = pd.DataFrame(columns=["key word", "description", "topic"])
+                    st.error("❌ File không đúng định dạng. Cần có cột 'key word' và 'description'.")
+            except Exception as e:
+                st.error(f"❌ Lỗi khi đọc file: {e}")
 
-                if "topic" not in update_df.columns:
-                    update_df["topic"] = None
-
-                if st.session_state["upload_mode"] == "🔄 Cập nhật từ khóa đã có":
-                    merged_df = pd.merge(update_df, old_df[['key word', 'topic']], on='key word', how='left', suffixes=('', '_old'))
-                    merged_df['topic'] = merged_df['topic'].combine_first(merged_df['topic_old'])
-                    merged_df.drop(columns=['topic_old'], inplace=True)
-                    merged_df['topic'] = merged_df['topic'].fillna('Tải lên')
-                else:
-                    default_topic = os.path.splitext(uploaded_file.name)[0]
-                    custom_topic = st.text_input("📝 Đặt tên cho topic mới:", value=default_topic)
-                    update_df['topic'] = custom_topic
-                    merged_df = update_df
-
-                st.session_state["uploaded_data"] = merged_df[["key word", "description", "topic"]]
-                merged_df.to_csv(UPLOADED_FILE, index=False)
-                st.success("✅ File đã được tải lên và lưu trữ thành công.")
-            else:
-                st.error("❌ File không đúng định dạng. Cần có cột 'key word' và 'description'.")
-        except Exception as e:
-            st.error(f"❌ Lỗi khi đọc file: {e}")
-
-        elif co_action in ["📝 Chỉnh sửa topic đã upload", "🗑️ Xoá topic"]:
+    elif co_action in ["📝 Chỉnh sửa topic đã upload", "🗑️ Xoá topic"]:
         st.markdown("---")
         st.subheader("🗂️ Quản lý topic đã upload")
         if os.path.exists(UPLOADED_FILE):
