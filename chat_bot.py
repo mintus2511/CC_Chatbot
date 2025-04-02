@@ -3,6 +3,7 @@ import streamlit as st
 import requests
 import json
 import uuid
+import os
 from streamlit_searchbox import st_searchbox
 from datetime import datetime, timedelta
 
@@ -12,6 +13,7 @@ st.title("📞 Call Center Chatbot")
 
 # === Constants ===
 PINNED_FILE = "pinned_keywords.json"
+UPLOADED_FILE = "uploaded_keywords.csv"
 
 # === User Identification via Cookie ===
 if "user_id" not in st.session_state:
@@ -29,8 +31,6 @@ with st.sidebar:
         new_id = f"user_{uuid.uuid4().hex[:8]}"
         st.query_params["uid"] = new_id
         st.rerun()
-
-    
 
 # === Load pinned keywords from file ===
 def load_pinned_keywords():
@@ -66,6 +66,16 @@ if "selected_topics" not in st.session_state:
     st.session_state["selected_topics"] = []
 if "trigger_display" not in st.session_state:
     st.session_state["trigger_display"] = False
+
+# === Load uploaded file nếu đã tồn tại ===
+if os.path.exists(UPLOADED_FILE):
+    try:
+        uploaded_df = pd.read_csv(UPLOADED_FILE)
+        uploaded_df.columns = uploaded_df.columns.str.lower().str.strip()
+        if {"key word", "description", "topic"}.issubset(uploaded_df.columns):
+            st.session_state["uploaded_data"] = uploaded_df
+    except Exception as e:
+        st.warning(f"⚠️ Không thể đọc file đã lưu: {e}")
 
 def display_bot_response(keyword, description, topic):
     st.chat_message("user").markdown(f"🔍 **Từ khóa:** `{keyword}`")
@@ -105,7 +115,8 @@ if st.session_state["is_authorized"]:
             if {"key word", "description"}.issubset(update_df.columns):
                 update_df["topic"] = "Tải lên"
                 st.session_state["uploaded_data"] = update_df[["key word", "description", "topic"]]
-                st.success("✅ File đã được tải lên thành công. Dữ liệu sẽ hiển thị cùng các chủ đề khác.")
+                update_df.to_csv(UPLOADED_FILE, index=False)
+                st.success("✅ File đã được tải lên và lưu trữ thành công.")
             else:
                 st.error("❌ File không đúng định dạng. Cần có cột 'key word' và 'description'.")
         except Exception as e:
