@@ -68,14 +68,15 @@ if "trigger_display" not in st.session_state:
 # === Chat Display Setup ===
 def display_bot_response(keyword, description, topic):
     st.chat_message("user").markdown(f"🔍 **Từ khóa:** `{keyword}`")
-    st.chat_message("assistant").markdown(f"**📂 Chủ đề:** `{topic}`
-
-{description}")
+    st.chat_message("assistant").markdown(
+        f"**📂 Chủ đề:** `{topic}`\n\n{description}"
+    )
     st.session_state["chat_history"].append({
         "keyword": keyword,
         "description": description,
         "topic": topic
     })
+
 
 # === User Guide ===
 with st.expander("ℹ️ Hướng dẫn sử dụng chatbot", expanded=False):
