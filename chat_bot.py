@@ -68,14 +68,64 @@ if "trigger_display" not in st.session_state:
     st.session_state["trigger_display"] = False
 
 # === Load uploaded file nếu đã tồn tại ===
+all_dataframes = []
 if os.path.exists(UPLOADED_FILE):
     try:
         uploaded_df = pd.read_csv(UPLOADED_FILE)
         uploaded_df.columns = uploaded_df.columns.str.lower().str.strip()
         if {"key word", "description", "topic"}.issubset(uploaded_df.columns):
+            all_dataframes.append(uploaded_df)
             st.session_state["uploaded_data"] = uploaded_df
     except Exception as e:
         st.warning(f"⚠️ Không thể đọc file đã lưu: {e}")
+
+# === Load GitHub CSVs nếu có ===
+GITHUB_USER = "mintus2511"
+GITHUB_REPO = "CC_Chatbot"
+GITHUB_API_URL = f"https://api.github.com/repos/{GITHUB_USER}/{GITHUB_REPO}/contents/"
+
+@st.cache_data(ttl=60)
+def get_csv_file_links():
+    try:
+        response = requests.get(GITHUB_API_URL)
+        response.raise_for_status()
+        files = response.json()
+        sorted_csvs = sorted(
+            [file for file in files if file["name"].endswith(".csv")],
+            key=lambda x: x["name"]
+        )
+        return {
+            file["name"]: file["download_url"]
+            for file in sorted_csvs
+        }
+    except Exception as e:
+        st.warning(f"⚠️ Lỗi khi lấy danh sách file từ GitHub: {e}")
+        return {}
+
+@st.cache_data(ttl=60)
+def load_csvs(csv_files):
+    combined = pd.DataFrame(columns=["key word", "description", "topic"])
+    for name, url in csv_files.items():
+        try:
+            df = pd.read_csv(url)
+            df.columns = df.columns.str.lower().str.strip()
+            if {"key word", "description"}.issubset(df.columns):
+                df["topic"] = name.replace(".csv", "")
+                combined = pd.concat([combined, df], ignore_index=True)
+        except Exception as e:
+            st.warning(f"⚠️ Không thể đọc {name} từ GitHub: {e}")
+    return combined
+
+csv_files = get_csv_file_links()
+github_df = load_csvs(csv_files)
+if not github_df.empty:
+    all_dataframes.append(github_df)
+
+# Gộp toàn bộ dữ liệu từ GitHub + file upload để có thể chỉnh sửa
+if all_dataframes:
+    all_data_combined = pd.concat(all_dataframes, ignore_index=True)
+else:
+    all_data_combined = pd.DataFrame(columns=["key word", "description", "topic"])
 
 def display_bot_response(keyword, description, topic):
     st.chat_message("user").markdown(f"🔍 **Từ khóa:** `{keyword}`")
@@ -174,7 +224,7 @@ if st.session_state["is_authorized"]:
         st.subheader("🗂️ Quản lý topic và từ khóa")
         if os.path.exists(UPLOADED_FILE):
             try:
-                df_all = pd.read_csv(UPLOADED_FILE)
+                df_all = all_data_combined.copy()
                 all_topics = sorted(df_all['topic'].dropna().unique())
                 topic_to_edit = st.selectbox("📂 Chọn topic:", all_topics)
                 df_topic = df_all[df_all['topic'] == topic_to_edit].copy()
