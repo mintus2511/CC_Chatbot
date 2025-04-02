@@ -104,6 +104,7 @@ if not data.empty:
                 for kw in topic_keywords:
                     if st.button(f"🔑 {kw}", key=f"{topic}-{kw}"):
                         set_selected_keyword(kw)
+                        st.experimental_rerun()
 
     # === Search box ===
     def search_fn(user_input):
@@ -141,12 +142,15 @@ if not data.empty:
         with col2:
             if st.button("🗑️ Xóa lịch sử", key="clear-history"):
                 st.session_state["recent_keywords"] = []
+                st.session_state["selected_keyword"] = None
+                st.experimental_rerun()
 
         # Display recent keywords as clickable buttons
         cols = st.columns(min(5, len(st.session_state["recent_keywords"])))
         for i, kw in enumerate(st.session_state["recent_keywords"]):
             if cols[i].button(f"{kw}", key=f"recent-bottom-{kw}"):
                 set_selected_keyword(kw)
+                st.experimental_rerun()
 
 else:
     st.error("⚠️ Không tìm thấy dữ liệu hợp lệ.")
