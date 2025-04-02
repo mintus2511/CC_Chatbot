@@ -111,7 +111,7 @@ if not data.empty:
         matches = data[data["key word"].str.lower().str.contains(keyword.lower(), na=False)]
 
         if not matches.empty:
-            st.subheader(f"Kết quả cho từ khóa: `{keyword}`")
+            #st.subheader(f"Kết quả cho từ khóa: `{keyword}`")
             for _, row in matches.iterrows():
                 st.write("🤖 **Bot:**", row["description"])
         else:
