@@ -6,6 +6,31 @@ from streamlit_searchbox import st_searchbox
 # === App Title ===
 st.title("📞 Call Center Chatbot")
 
+# === User Guide ===
+with st.expander("ℹ️ Hướng dẫn sử dụng chatbot", expanded=False):
+    st.info("""
+    **📘 Call Center Chatbot - Hướng Dẫn Sử Dụng**
+
+    **1. Nhập từ khóa**  
+    🔍 Gõ từ khóa vào ô tìm kiếm (ví dụ: *học phí, học bổng, đăng ký, lịch học*...).  
+    Chatbot sẽ tự động gợi ý những từ phù hợp.
+
+    **2. Xem câu trả lời**  
+    🤖 Sau khi chọn từ khóa, chatbot sẽ hiển thị câu trả lời tương ứng.  
+    Nếu có nhiều kết quả phù hợp, tất cả sẽ được hiển thị.
+
+    **3. Dữ liệu tự động cập nhật**  
+    📂 Dữ liệu được lấy từ GitHub và làm sạch trước khi hiển thị.  
+    Hệ thống chỉ giữ lại phiên bản mới nhất của mỗi từ khóa.
+
+    **Lưu ý:**  
+    - Nếu gặp lỗi khi kết nối, vui lòng kiểm tra kết nối mạng hoặc thử lại sau.  
+    - Hãy nhập từ khóa ngắn gọn hoặc phổ biến để tăng độ chính xác.
+
+    **🛠 Góp ý & Báo lỗi**  
+    Vui lòng liên hệ nhóm phát triển tại: [GitHub Repo](https://github.com/Menbeo/-HUHU-)
+    """)
+
 # === GitHub Repo Info ===
 GITHUB_USER = "mintus2511"
 GITHUB_REPO = "CC_Chatbot"
@@ -19,7 +44,6 @@ def get_csv_file_links():
         response.raise_for_status()
         files = response.json()
 
-        # Sort filenames so newer ones (e.g., with versioning) come last
         sorted_csvs = sorted(
             [file for file in files if file["name"].endswith(".csv")],
             key=lambda x: x["name"]
@@ -51,7 +75,7 @@ def load_csvs(csv_files):
     # ✅ Keep only the latest version of each "key word"
     combined = combined.drop_duplicates(subset="key word", keep="last")
 
-    # ✅ Log & remove duplicate descriptions (optional clean-up)
+    # ✅ Optional clean-up: remove duplicate descriptions
     dupes = combined[combined.duplicated("description", keep=False)].copy()
     removed_duplicates = dupes[dupes.duplicated("description", keep="first")]
     cleaned_data = combined.drop_duplicates(subset="description", keep="first")
@@ -62,10 +86,29 @@ def load_csvs(csv_files):
 csv_files = get_csv_file_links()
 data, removed_duplicates = load_csvs(csv_files)
 
-# === Step 4: Chatbot UI ===
+# === Step 4: Chatbot UI with Optional Sidebar Filter ===
 if not data.empty:
     all_keywords = sorted(data["key word"].dropna().astype(str).unique())
 
+    # === Sidebar: Optional topic/keyword filter ===
+    with st.sidebar.expander("📂 Bộ lọc theo chủ đề (tùy chọn)", expanded=False):
+        st.markdown("Bạn có thể lọc nhanh theo chủ đề và từ khóa")
+
+        all_topics = sorted(data["topic"].dropna().unique())
+        selected_topic = st.selectbox("Chọn chủ đề", ["Tất cả"] + all_topics)
+
+        if selected_topic != "Tất cả":
+            filtered_data = data[data["topic"] == selected_topic]
+        else:
+            filtered_data = data
+
+        topic_keywords = sorted(filtered_data["key word"].dropna().astype(str).unique())
+        selected_sidebar_keyword = st.selectbox("🔑 Chọn từ khóa", [""] + topic_keywords)
+
+        if selected_sidebar_keyword:
+            st.session_state["selected_keyword"] = selected_sidebar_keyword
+
+    # === Main search UI ===
     def search_fn(user_input):
         return [kw for kw in all_keywords if user_input.lower() in kw.lower()]
 
@@ -79,22 +122,25 @@ if not data.empty:
     if selected_keyword:
         st.session_state["selected_keyword"] = selected_keyword
 
+    # === Display chatbot response ===
     if "selected_keyword" in st.session_state:
         keyword = st.session_state["selected_keyword"]
         matches = data[data["key word"].str.lower().str.contains(keyword.lower(), na=False)]
 
         if not matches.empty:
+            st.subheader(f"Kết quả cho từ khóa: `{keyword}`")
             for _, row in matches.iterrows():
                 st.write("🤖 **Bot:**", row["description"])
-                #st.caption(f"(📂 Chủ đề: {row['topic']} | 🔑 Từ khóa: {row['key word']})")
+                # Uncomment to show more detail:
+                # st.caption(f"(📂 Chủ đề: {row['topic']} | 🔑 Từ khóa: {row['key word']})")
         else:
             st.info("Không tìm thấy mô tả cho từ khóa này.")
 else:
     st.error("⚠️ Không tìm thấy dữ liệu hợp lệ.")
 
 # === (Optional) Dev View: See removed duplicates ===
-#with st.expander("🛠️ [Dev] Xem các mô tả trùng lặp đã bị xóa", expanded=False):
-    #if not removed_duplicates.empty:
-        #st.dataframe(removed_duplicates)
-    #else:
-        #st.write("✅ Không có mô tả nào bị trùng lặp.")
+# with st.expander("🛠️ [Dev] Xem các mô tả trùng lặp đã bị xóa", expanded=False):
+#     if not removed_duplicates.empty:
+#         st.dataframe(removed_duplicates)
+#     else:
+#         st.write("✅ Không có mô tả nào bị trùng lặp.")
