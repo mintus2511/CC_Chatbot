@@ -274,22 +274,38 @@ if st.session_state["is_authorized"]:
                 topic_to_edit = st.selectbox("📂 Chọn topic:", all_topics)
                 df_topic = df_all[df_all['topic'] == topic_to_edit].copy()
 
-                st.dataframe(df_topic)
-
+            # === Hiển thị bảng có thể chỉnh sửa kèm cột chọn xoá
+                df_topic["🔘 Chọn xoá"] = False
                 edited_df = st.data_editor(
                     df_topic,
                     num_rows="dynamic",
                     use_container_width=True,
-                    key="edit_table"
+                    key="edit_table_with_delete"
                 )
 
+            # === Lưu chỉnh sửa toàn bộ bảng
                 if st.button("💾 Lưu chỉnh sửa"):
                     df_all = df_all[df_all['topic'] != topic_to_edit]
-                    df_all = pd.concat([df_all, edited_df], ignore_index=True)
+                    df_all = pd.concat([df_all, edited_df.drop(columns=["🔘 Chọn xoá"])], ignore_index=True)
                     df_all.to_csv(UPLOADED_FILE, index=False)
                     st.success("✅ Đã lưu chỉnh sửa thành công.")
                     st.rerun()
 
+                # === Xoá từ khóa đã chọn
+                if st.button("🗑️ Xoá từ khóa đã chọn"):
+                    to_delete = edited_df[edited_df["🔘 Chọn xoá"] == True]
+                    if not to_delete.empty:
+                        df_all = df_all[~(
+                            (df_all["topic"] == topic_to_edit) &
+                            (df_all["key word"].isin(to_delete["key word"]))
+                        )]
+                        df_all.to_csv(UPLOADED_FILE, index=False)
+                        st.success(f"🗑️ Đã xoá {len(to_delete)} từ khóa khỏi topic.")
+                        st.rerun()
+                    else:
+                        st.warning("⚠️ Bạn chưa chọn từ khóa nào để xoá.")
+
+                # === Đổi tên topic
                 if co_action == "📝 Chỉnh sửa topic đã upload":
                     new_name = st.text_input("✏️ Đổi tên topic:", value=topic_to_edit)
                     if st.button("💾 Lưu tên topic mới") and new_name != topic_to_edit:
@@ -298,6 +314,7 @@ if st.session_state["is_authorized"]:
                         st.success("✅ Đã đổi tên topic thành công.")
                         st.rerun()
 
+                # === Xoá toàn bộ topic
                 elif co_action == "🗑️ Xoá topic":
                     if st.button("🗑️ Xoá toàn bộ topic này"):
                         df_all = df_all[df_all['topic'] != topic_to_edit]
@@ -306,6 +323,7 @@ if st.session_state["is_authorized"]:
                         st.rerun()
             except Exception as e:
                 st.error(f"❌ Không thể quản lý topic: {e}")
+
 
 # === GitHub Repo Info ===
 GITHUB_USER = "mintus2511"
