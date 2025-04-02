@@ -78,18 +78,6 @@ def display_bot_response(keyword, description, topic):
         "topic": topic
     })
 
-# === Co-lead Authorization ===
-if "is_authorized" not in st.session_state:
-    st.session_state["is_authorized"] = False
-
-if not st.session_state["is_authorized"]:
-    code = st.text_input("🔑 Nhập mã truy cập Co-lead")
-    if code == "COLEAD2024":
-        st.session_state["is_authorized"] = True
-        st.success("✅ Xác thực thành công. Bạn có quyền tải lên dữ liệu mới.")
-    elif code:
-        st.error("❌ Mã truy cập không đúng")
-
 # === Upload CSV to update keywords ===
 if st.session_state["is_authorized"]:
     st.markdown("---")
@@ -108,10 +96,9 @@ if st.session_state["is_authorized"]:
         except Exception as e:
             st.error(f"❌ Lỗi khi đọc file: {e}")
 
-# === User Guide ===
-
 # === Co-lead Authorization dưới cùng sidebar ===
 with st.sidebar:
+    st.markdown("---")
     with st.expander("👤 Khu vực dành cho Co-lead (ẩn mặc định)", expanded=False):
         if "is_authorized" not in st.session_state:
             st.session_state["is_authorized"] = False
