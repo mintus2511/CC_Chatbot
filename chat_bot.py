@@ -152,6 +152,12 @@ with st.sidebar:
                 st.success("✅ Xác thực thành công. Bạn có quyền tải lên dữ liệu mới.")
             elif code:
                 st.error("❌ Mã truy cập không đúng")
+        else:
+            st.success("🔓 Bạn đang ở chế độ Co-lead")
+            if st.button("🚪 Thoát chế độ Co-lead"):
+                st.session_state["is_authorized"] = False
+                st.success("✅ Bạn đã thoát khỏi chế độ Co-lead.")
+                st.rerun()
 
 # === Upload hoặc Quản lý topic ===
 if st.session_state["is_authorized"]:
@@ -427,26 +433,6 @@ if not data.empty:
                         else:
                             st.session_state["pinned_keywords"].insert(0, kw)
                         save_pinned_keywords(st.session_state["pinned_keywords"])
-        # === Khu vực Co-lead ===
-        st.markdown("---")
-        with st.expander("👤 Khu vực dành cho Co-lead (ẩn mặc định)", expanded=False):
-            if "is_authorized" not in st.session_state:
-                st.session_state["is_authorized"] = False
-
-            if not st.session_state["is_authorized"]:
-                code = st.text_input("🔑 Nhập mã truy cập Co-lead", type="password")
-                if code == "COLEAD2024":
-                    st.session_state["is_authorized"] = True
-                    st.success("✅ Xác thực thành công. Bạn có quyền tải lên dữ liệu mới.")
-                    st.rerun()
-                elif code:
-                    st.error("❌ Mã truy cập không đúng")
-            else:
-                st.success("🔓 Bạn đang ở chế độ Co-lead")
-                if st.button("🚪 Thoát chế độ Co-lead"):
-                    st.session_state["is_authorized"] = False
-                    st.success("✅ Bạn đã thoát khỏi chế độ Co-lead.")
-                    st.rerun()
 
     def search_fn(user_input):
         return [kw for kw in all_keywords if user_input.lower() in kw.lower()]
