@@ -15,10 +15,10 @@ PINNED_FILE = "pinned_keywords.json"
 
 # === User Identification via Cookie ===
 if "user_id" not in st.session_state:
-    user_id = st.experimental_get_query_params().get("uid", [None])[0]
+    user_id = st.query_params.get("uid", None)
     if not user_id:
         user_id = f"user_{uuid.uuid4().hex[:8]}"
-        st.experimental_set_query_params(uid=user_id)
+        st.query_params["uid"] = user_id
     st.session_state["user_id"] = user_id
 
 user_id = st.session_state["user_id"]
@@ -27,7 +27,7 @@ user_id = st.session_state["user_id"]
 with st.sidebar:
     if st.button("🔄 Đăng xuất / Tạo người dùng mới"):
         new_id = f"user_{uuid.uuid4().hex[:8]}"
-        st.experimental_set_query_params(uid=new_id)
+        st.query_params["uid"] = new_id
         st.experimental_rerun()
 
 # === Load pinned keywords from file ===
