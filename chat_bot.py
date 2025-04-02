@@ -90,23 +90,21 @@ data, removed_duplicates = load_csvs(csv_files)
 if not data.empty:
     all_keywords = sorted(data["key word"].dropna().astype(str).unique())
 
-    # === Sidebar: Optional topic/keyword filter ===
-    with st.sidebar.expander("📂 Bộ lọc theo chủ đề (tùy chọn)", expanded=False):
-        st.markdown("Bạn có thể lọc nhanh theo chủ đề và từ khóa")
+    # === Sidebar: Full topic & keyword directory ===
+with st.sidebar.expander("📂 Danh mục từ khóa theo chủ đề", expanded=False):
+    st.markdown("Dưới đây là tất cả các chủ đề và từ khóa tương ứng:")
 
-        all_topics = sorted(data["topic"].dropna().unique())
-        selected_topic = st.selectbox("Chọn chủ đề", ["Tất cả"] + all_topics)
+    all_topics = sorted(data["topic"].dropna().unique())
 
-        if selected_topic != "Tất cả":
-            filtered_data = data[data["topic"] == selected_topic]
-        else:
-            filtered_data = data
+    for topic in all_topics:
+        st.markdown(f"### 📁 {topic}")
 
-        topic_keywords = sorted(filtered_data["key word"].dropna().astype(str).unique())
-        selected_sidebar_keyword = st.selectbox("🔑 Chọn từ khóa", [""] + topic_keywords)
+        topic_data = data[data["topic"] == topic]
+        topic_keywords = sorted(topic_data["key word"].dropna().astype(str).unique())
 
-        if selected_sidebar_keyword:
-            st.session_state["selected_keyword"] = selected_sidebar_keyword
+        for kw in topic_keywords:
+            st.markdown(f"- 🔑 `{kw}`")
+
 
     # === Main search UI ===
     def search_fn(user_input):
