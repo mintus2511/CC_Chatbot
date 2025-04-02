@@ -123,8 +123,7 @@ if st.session_state["is_authorized"]:
         )
 
         uploaded_file = st.file_uploader("Chọn file CSV", type="csv")
-    if co_action == "📤 Tải file CSV mới":
-        uploaded_file = st.file_uploader("Chọn file CSV", type="csv")
+
         if uploaded_file is not None:
             try:
                 update_df = pd.read_csv(uploaded_file)
