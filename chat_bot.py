@@ -227,9 +227,15 @@ if st.session_state["is_authorized"]:
             description = st.text_area("📝 Mô tả").strip()
 
             existing_topics = sorted(all_data_combined["topic"].dropna().unique())
-            topic_choice = st.selectbox("📂 Chọn chủ đề (hoặc nhập mới)", existing_topics + ["🔄 Nhập mới..."])
+            topic_choice = st.selectbox(
+                "📂 Chọn chủ đề (hoặc nhập mới)",
+                options=["🔄 Nhập mới..."] + existing_topics,
+                index=1 if existing_topics else 0,
+                key="manual_topic_select"
+            )
+
             if topic_choice == "🔄 Nhập mới...":
-                topic = st.text_input("📌 Nhập tên chủ đề mới").strip()
+                topic = st.text_input("📌 Nhập tên chủ đề mới", key="manual_new_topic").strip()
             else:
                 topic = topic_choice
 
