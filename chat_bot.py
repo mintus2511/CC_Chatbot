@@ -122,15 +122,6 @@ if not data.empty:
     if selected_keyword:
         set_selected_keyword(selected_keyword)
 
-    # === Show recent keywords at the bottom ===
-st.markdown("---")
-if st.session_state["recent_keywords"]:
-    st.markdown("### 🕓 Từ khóa bạn đã xem gần đây")
-    cols = st.columns(min(5, len(st.session_state["recent_keywords"])))
-    for i, kw in enumerate(st.session_state["recent_keywords"]):
-        if cols[i].button(f"{kw}", key=f"recent-bottom-{kw}"):
-            set_selected_keyword(kw)
-
     # === Main Output: Bot Answer ===
     if st.session_state["selected_keyword"]:
         keyword = st.session_state["selected_keyword"]
@@ -144,3 +135,12 @@ if st.session_state["recent_keywords"]:
             st.info("Không tìm thấy mô tả cho từ khóa này.")
 else:
     st.error("⚠️ Không tìm thấy dữ liệu hợp lệ.")
+
+    # === Show recent keywords at the bottom ===
+st.markdown("---")
+if st.session_state["recent_keywords"]:
+    st.markdown("### 🕓 Từ khóa bạn đã xem gần đây")
+    cols = st.columns(min(5, len(st.session_state["recent_keywords"])))
+    for i, kw in enumerate(st.session_state["recent_keywords"]):
+        if cols[i].button(f"{kw}", key=f"recent-bottom-{kw}"):
+            set_selected_keyword(kw)
