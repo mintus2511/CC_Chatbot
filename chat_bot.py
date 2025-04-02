@@ -30,18 +30,7 @@ with st.sidebar:
         st.query_params["uid"] = new_id
         st.rerun()
 
-    st.markdown("---")
-    st.markdown("#### 👤 Khu vực dành cho Co-lead")
-    if "is_authorized" not in st.session_state:
-        st.session_state["is_authorized"] = False
-
-    if not st.session_state["is_authorized"]:
-        code = st.text_input("🔑 Nhập mã truy cập Co-lead", type="password")
-        if code == "COLEAD2024":
-            st.session_state["is_authorized"] = True
-            st.success("✅ Xác thực thành công. Bạn có quyền tải lên dữ liệu mới.")
-        elif code:
-            st.error("❌ Mã truy cập không đúng")
+    
 
 # === Load pinned keywords from file ===
 def load_pinned_keywords():
@@ -94,8 +83,8 @@ if "is_authorized" not in st.session_state:
     st.session_state["is_authorized"] = False
 
 if not st.session_state["is_authorized"]:
-    code = st.text_input("🔑 Nhập mã truy cập Co-lead")
-    if code == "COLEAD2024":
+    code = st.text_input("🔑 Nhập mã truy cập Admin")
+    if code == "ADMIN123@":
         st.session_state["is_authorized"] = True
         st.success("✅ Xác thực thành công. Bạn có quyền tải lên dữ liệu mới.")
     elif code:
@@ -112,7 +101,10 @@ if st.session_state["is_authorized"]:
             update_df.columns = update_df.columns.str.lower().str.strip()
             if {"key word", "description"}.issubset(update_df.columns):
                 update_df["topic"] = "Tải lên"
-                data = pd.concat([data, update_df[["key word", "description", "topic"]]], ignore_index=True)
+                st.session_state["uploaded_data"] = update_df[["key word", "description", "topic"]]
+                st.success("✅ File đã được tải lên thành công. Dữ liệu sẽ hiển thị cùng các chủ đề khác.")
+            else:
+                st.error("❌ File không đúng định dạng. Cần có cột 'key word' và 'description'.")[["key word", "description", "topic"]]], ignore_index=True)
                 data = data.drop_duplicates(subset="key word", keep="last")
                 data = data.drop_duplicates(subset="description", keep="first")
                 st.success("✅ Đã cập nhật dữ liệu từ file tải lên.")
@@ -122,16 +114,20 @@ if st.session_state["is_authorized"]:
             st.error(f"❌ Lỗi khi đọc file: {e}")
 
 # === User Guide ===
-with st.expander("ℹ️ Hướng dẫn sử dụng chatbot", expanded=False):
-    st.info("""
-    **📘 Call Center Chatbot - Hướng Dẫn Sử Dụng**
 
-    **1. Gõ hoặc chọn từ khóa**  
-    🔍 Bạn có thể gõ từ khóa, lọc nhiều từ hoặc nhấn từ khóa đã ghim ở thanh bên trái để xem mô tả.
+# === Co-lead Authorization dưới cùng sidebar ===
+with st.sidebar:
+    with st.expander("👤 Admin", expanded=False):
+        if "is_authorized" not in st.session_state:
+            st.session_state["is_authorized"] = False
 
-    **2. Dữ liệu tự động cập nhật**  
-    📂 Dữ liệu được lấy từ GitHub và làm sạch trước khi hiển thị.
-    """)
+        if not st.session_state["is_authorized"]:
+            code = st.text_input("🔑 Nhập mã truy cập Admin", type="password")
+            if code == "ADMIN123@":
+                st.session_state["is_authorized"] = True
+                st.success("✅ Xác thực thành công. Bạn có quyền tải lên dữ liệu mới.")
+            elif code:
+                st.error("❌ Mã truy cập không đúng")
 
 # === GitHub Repo Info ===
 GITHUB_USER = "mintus2511"
@@ -174,6 +170,12 @@ def load_csvs(csv_files):
 
 csv_files = get_csv_file_links()
 data = load_csvs(csv_files)
+
+# Nếu có dữ liệu upload từ co-lead, thêm vào
+if "uploaded_data" in st.session_state:
+    data = pd.concat([data, st.session_state["uploaded_data"]], ignore_index=True)
+    data = data.drop_duplicates(subset="key word", keep="last")
+    data = data.drop_duplicates(subset="description", keep="first")
 
 def set_selected_keyword(keyword):
     st.session_state["selected_keyword"] = keyword
@@ -269,4 +271,5 @@ if st.session_state["chat_history"]:
             st.rerun()
         for msg in st.session_state["chat_history"]:
             st.chat_message("user").markdown(f"🔍 **Từ khóa:** `{msg['keyword']}`")
-            st.chat_message("assistant").markdown(f"**📂 Chủ đề:** `{msg['topic']}`\\n\\n{msg['description']}")
+            st.chat_message("assistant").markdown(
+    f"**📂 Chủ đề:** `{msg['topic']}`\n\n{msg['description']}")
