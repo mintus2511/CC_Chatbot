@@ -1,17 +1,53 @@
 import pandas as pd
 import streamlit as st
 import requests
+import json
+import uuid
+import os
 from streamlit_searchbox import st_searchbox
 
 # === App Title ===
 st.set_page_config(page_title="Call Center Chatbot", layout="wide")
 st.title("📞 Call Center Chatbot")
 
+# === Constants ===
+PINNED_FILE = "pinned_keywords.json"
+
+# === User Identification ===
+if "user_id" not in st.session_state:
+    if os.path.exists(".user_id"):
+        with open(".user_id", "r") as f:
+            st.session_state["user_id"] = f.read().strip()
+    else:
+        st.session_state["user_id"] = f"user_{uuid.uuid4().hex[:8]}"
+        with open(".user_id", "w") as f:
+            f.write(st.session_state["user_id"])
+
+user_id = st.session_state["user_id"]
+
+# === Load pinned keywords from file ===
+def load_pinned_keywords():
+    if os.path.exists(PINNED_FILE):
+        with open(PINNED_FILE, "r") as f:
+            all_pins = json.load(f)
+            return all_pins.get(user_id, [])
+    return []
+
+# === Save pinned keywords to file ===
+def save_pinned_keywords(pins):
+    all_pins = {}
+    if os.path.exists(PINNED_FILE):
+        with open(PINNED_FILE, "r") as f:
+            all_pins = json.load(f)
+    all_pins[user_id] = pins
+    with open(PINNED_FILE, "w") as f:
+        json.dump(all_pins, f)
+
 # === Session state setup ===
 if "selected_keyword" not in st.session_state:
     st.session_state["selected_keyword"] = None
 if "pinned_keywords" not in st.session_state:
-    st.session_state["pinned_keywords"] = []
+    st.session_state["pinned_keywords"] = load_pinned_keywords()
 if "multi_filter_keywords" not in st.session_state:
     st.session_state["multi_filter_keywords"] = []
 if "selected_topics" not in st.session_state:
@@ -92,12 +128,10 @@ if not data.empty:
     all_topics = sorted(data["topic"].dropna().unique())
 
     with st.sidebar:
-        # === Lọc theo chủ đề ===
         st.markdown("### 🧭 Lọc theo chủ đề")
         selected_topics = st.multiselect("Chọn chủ đề:", all_topics)
         st.session_state["selected_topics"] = selected_topics
 
-        # === Ghim từ khóa theo nhóm ===
         if st.session_state["pinned_keywords"]:
             st.markdown("### 📌 Từ khóa đã ghim")
             pinned_df = data[data["key word"].isin(st.session_state["pinned_keywords"])]
@@ -108,13 +142,11 @@ if not data.empty:
                             set_selected_keyword(kw)
                             st.rerun()
 
-        # === Bộ lọc nhiều từ khóa ===
         st.markdown("### 🧠 Lọc nhiều từ khóa")
         filtered_keywords = data[data["topic"].isin(selected_topics)]["key word"].unique() if selected_topics else all_keywords
         selected_multi = st.multiselect("Chọn nhiều từ khóa:", sorted(filtered_keywords))
         st.session_state["multi_filter_keywords"] = selected_multi
 
-        # === Danh sách từ khóa trong expander theo topic ===
         st.markdown("### 📚 Danh mục từ khóa")
         topics_to_show = selected_topics if selected_topics else all_topics
         for topic in topics_to_show:
@@ -132,8 +164,8 @@ if not data.empty:
                             st.session_state["pinned_keywords"].remove(kw)
                         else:
                             st.session_state["pinned_keywords"].insert(0, kw)
+                        save_pinned_keywords(st.session_state["pinned_keywords"])
 
-    # === Search box ===
     def search_fn(user_input):
         return [kw for kw in all_keywords if user_input.lower() in kw.lower()]
 
@@ -146,7 +178,6 @@ if not data.empty:
     if selected_keyword:
         set_selected_keyword(selected_keyword)
 
-    # === Hiển thị kết quả ===
     if st.session_state["multi_filter_keywords"]:
         st.subheader("📋 Kết quả theo nhiều từ khóa:")
         for kw in st.session_state["multi_filter_keywords"]:
