@@ -168,8 +168,6 @@ if st.session_state["is_authorized"]:
                         st.error(f"❌ File `{uploaded_file.name}` không đúng định dạng. Cần có cột 'key word' và 'description'.")
                 except Exception as e:
                     st.error(f"❌ Lỗi khi đọc file `{uploaded_file.name}`: {e}")
-                else:
-                    st.error("❌ File không đúng định dạng. Cần có cột 'key word' và 'description'.")
             except Exception as e:
                 st.error(f"❌ Lỗi khi đọc file: {e}")
 
