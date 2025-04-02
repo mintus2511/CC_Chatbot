@@ -138,18 +138,16 @@ def display_bot_response(keyword, description, topic):
         "topic": topic
     })
 
-# === Co-lead Authorization dưới cùng sidebar ===
+# === Co-lead Authorization Section ===
 with st.sidebar:
     st.markdown("---")
     with st.expander("👤 Khu vực dành cho Co-lead (ẩn mặc định)", expanded=False):
-        if "is_authorized" not in st.session_state:
-            st.session_state["is_authorized"] = False
-
         if not st.session_state["is_authorized"]:
-            code = st.text_input("🔑 Nhập mã truy cập Co-lead", type="password")
+            code = st.text_input("🔑 Nhập mã truy cập Co-lead", type="password", key="colead_password")
             if code == "COLEAD2024":
                 st.session_state["is_authorized"] = True
                 st.success("✅ Xác thực thành công. Bạn có quyền tải lên dữ liệu mới.")
+                st.rerun()
             elif code:
                 st.error("❌ Mã truy cập không đúng")
         else:
