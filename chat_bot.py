@@ -11,14 +11,14 @@ with st.expander("ℹ️ Hướng dẫn sử dụng chatbot", expanded=False):
     st.info("""
     **📘 Call Center Chatbot - Hướng Dẫn Sử Dụng**
 
-    **1. Gõ từ khóa**  
-    🔍 Hoặc chọn từ khóa trực tiếp trong thanh bên trái để xem mô tả.
+    **1. Gõ hoặc chọn từ khóa**  
+    🔍 Bạn có thể gõ từ khóa hoặc nhấn vào từ khóa ở thanh bên trái để xem mô tả.
 
-    **2. Dữ liệu tự động cập nhật**  
+    **2. Xem lịch sử từ khóa gần đây**  
+    🕓 Nhấn lại vào từ khóa gần đây để xem nhanh nội dung đã xem trước.
+
+    **3. Dữ liệu tự động cập nhật**  
     📂 Dữ liệu được lấy từ GitHub và làm sạch trước khi hiển thị.
-
-    **🛠 Góp ý & Báo lỗi**  
-    Vui lòng liên hệ nhóm phát triển tại: [GitHub Repo](https://github.com/Menbeo/-HUHU-)
     """)
 
 # === GitHub Repo Info ===
@@ -73,23 +73,46 @@ def load_csvs(csv_files):
 csv_files = get_csv_file_links()
 data, removed_duplicates = load_csvs(csv_files)
 
-# === Step 4: UI & Logic ===
+# === Step 4: Setup session state for history ===
+if "selected_keyword" not in st.session_state:
+    st.session_state["selected_keyword"] = None
+
+if "recent_keywords" not in st.session_state:
+    st.session_state["recent_keywords"] = []
+
+def set_selected_keyword(keyword):
+    """Set selected keyword and add it to history"""
+    st.session_state["selected_keyword"] = keyword
+    if keyword not in st.session_state["recent_keywords"]:
+        st.session_state["recent_keywords"].insert(0, keyword)
+        # Limit to 5 recent keywords
+        st.session_state["recent_keywords"] = st.session_state["recent_keywords"][:5]
+
+# === Step 5: UI & Logic ===
 if not data.empty:
     all_keywords = sorted(data["key word"].dropna().astype(str).unique())
     all_topics = sorted(data["topic"].dropna().unique())
 
-    # === Sidebar: Interactive keyword buttons grouped by topic ===
+    # === SIDEBAR ===
     with st.sidebar:
         st.markdown("## 📚 Danh mục từ khóa")
-        st.markdown("Nhấn vào từ khóa để xem câu trả lời tương ứng.")
+        st.markdown("Nhấn vào từ khóa để xem câu trả lời.")
 
+        # --- List keywords by topic with buttons ---
         for topic in all_topics:
             with st.expander(f"📁 {topic}", expanded=False):
                 topic_data = data[data["topic"] == topic]
                 topic_keywords = sorted(topic_data["key word"].dropna().astype(str).unique())
                 for kw in topic_keywords:
                     if st.button(f"🔑 {kw}", key=f"{topic}-{kw}"):
-                        st.session_state["selected_keyword"] = kw
+                        set_selected_keyword(kw)
+
+        # --- Recent keyword history ---
+        if st.session_state["recent_keywords"]:
+            st.markdown("## 🕓 Từ khóa gần đây")
+            for kw in st.session_state["recent_keywords"]:
+                if st.button(f"📌 {kw}", key=f"recent-{kw}"):
+                    set_selected_keyword(kw)
 
     # === Main search box (optional) ===
     def search_fn(user_input):
@@ -103,15 +126,15 @@ if not data.empty:
     )
 
     if selected_keyword:
-        st.session_state["selected_keyword"] = selected_keyword
+        set_selected_keyword(selected_keyword)
 
     # === Main Output: Bot Answer ===
-    if "selected_keyword" in st.session_state:
+    if st.session_state["selected_keyword"]:
         keyword = st.session_state["selected_keyword"]
         matches = data[data["key word"].str.lower().str.contains(keyword.lower(), na=False)]
 
         if not matches.empty:
-            #st.subheader(f"Kết quả cho từ khóa: `{keyword}`")
+            st.subheader(f"Kết quả cho từ khóa: `{keyword}`")
             for _, row in matches.iterrows():
                 st.write("🤖 **Bot:**", row["description"])
         else:
