@@ -28,7 +28,7 @@ with st.sidebar:
     if st.button("🔄 Đăng xuất / Tạo người dùng mới"):
         new_id = f"user_{uuid.uuid4().hex[:8]}"
         st.query_params["uid"] = new_id
-        st.experimental_rerun()
+        st.rerun()
 
 # === Load pinned keywords from file ===
 def load_pinned_keywords():
