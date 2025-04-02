@@ -218,6 +218,5 @@ if st.session_state["chat_history"]:
     st.subheader("💬 Lịch sử cuộc trò chuyện")
     for msg in st.session_state["chat_history"]:
         st.chat_message("user").markdown(f"🔍 **Từ khóa:** `{msg['keyword']}`")
-        st.chat_message("assistant").markdown(f"**📂 Chủ đề:** `{msg['topic']}`
+        st.chat_message("assistant").markdown(f"**📂 Chủ đề:** `{msg['topic']}`\n\n{msg['description']}")
 
-{msg['description']}")
