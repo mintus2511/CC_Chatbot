@@ -3,8 +3,8 @@ import streamlit as st
 import requests
 import json
 import uuid
-import os
 from streamlit_searchbox import st_searchbox
+from datetime import datetime, timedelta
 
 # === App Title ===
 st.set_page_config(page_title="Call Center Chatbot", layout="wide")
@@ -13,32 +13,40 @@ st.title("📞 Call Center Chatbot")
 # === Constants ===
 PINNED_FILE = "pinned_keywords.json"
 
-# === User Identification ===
+# === User Identification via Cookie ===
 if "user_id" not in st.session_state:
-    if os.path.exists(".user_id"):
-        with open(".user_id", "r") as f:
-            st.session_state["user_id"] = f.read().strip()
-    else:
-        st.session_state["user_id"] = f"user_{uuid.uuid4().hex[:8]}"
-        with open(".user_id", "w") as f:
-            f.write(st.session_state["user_id"])
+    user_id = st.experimental_get_query_params().get("uid", [None])[0]
+    if not user_id:
+        user_id = f"user_{uuid.uuid4().hex[:8]}"
+        st.experimental_set_query_params(uid=user_id)
+    st.session_state["user_id"] = user_id
 
 user_id = st.session_state["user_id"]
 
+# === Đăng xuất / Tạo người dùng mới ===
+with st.sidebar:
+    if st.button("🔄 Đăng xuất / Tạo người dùng mới"):
+        new_id = f"user_{uuid.uuid4().hex[:8]}"
+        st.experimental_set_query_params(uid=new_id)
+        st.experimental_rerun()
+
 # === Load pinned keywords from file ===
 def load_pinned_keywords():
-    if os.path.exists(PINNED_FILE):
+    try:
         with open(PINNED_FILE, "r") as f:
             all_pins = json.load(f)
             return all_pins.get(user_id, [])
-    return []
+    except:
+        return []
 
 # === Save pinned keywords to file ===
 def save_pinned_keywords(pins):
     all_pins = {}
-    if os.path.exists(PINNED_FILE):
+    try:
         with open(PINNED_FILE, "r") as f:
             all_pins = json.load(f)
+    except:
+        pass
     all_pins[user_id] = pins
     with open(PINNED_FILE, "w") as f:
         json.dump(all_pins, f)
@@ -72,19 +80,16 @@ GITHUB_USER = "mintus2511"
 GITHUB_REPO = "CC_Chatbot"
 GITHUB_API_URL = f"https://api.github.com/repos/{GITHUB_USER}/{GITHUB_REPO}/contents/"
 
-# === Step 1: Get CSV files from GitHub ===
 @st.cache_data(ttl=60)
 def get_csv_file_links():
     try:
         response = requests.get(GITHUB_API_URL)
         response.raise_for_status()
         files = response.json()
-
         sorted_csvs = sorted(
             [file for file in files if file["name"].endswith(".csv")],
             key=lambda x: x["name"]
         )
-
         return {
             file["name"]: file["download_url"]
             for file in sorted_csvs
@@ -93,11 +98,9 @@ def get_csv_file_links():
         st.error(f"❌ Lỗi khi kết nối tới GitHub: {e}")
         return {}
 
-# === Step 2: Load & clean CSVs ===
 @st.cache_data(ttl=60)
 def load_csvs(csv_files):
     combined = pd.DataFrame(columns=["key word", "description", "topic"])
-
     for name, url in csv_files.items():
         try:
             df = pd.read_csv(url)
@@ -107,22 +110,17 @@ def load_csvs(csv_files):
                 combined = pd.concat([combined, df[["key word", "description", "topic"]]], ignore_index=True)
         except Exception as e:
             st.warning(f"⚠️ Lỗi đọc {name}: {e}")
-
     combined = combined.drop_duplicates(subset="key word", keep="last")
     combined = combined.drop_duplicates(subset="description", keep="first")
-
     return combined
 
-# === Step 3: Load data ===
 csv_files = get_csv_file_links()
 data = load_csvs(csv_files)
 
-# === Step 4: Setup helper ===
 def set_selected_keyword(keyword):
     st.session_state["selected_keyword"] = keyword
     st.session_state["trigger_display"] = True
 
-# === Step 5: UI and logic ===
 if not data.empty:
     all_keywords = sorted(data["key word"].dropna().astype(str).unique())
     all_topics = sorted(data["topic"].dropna().unique())
