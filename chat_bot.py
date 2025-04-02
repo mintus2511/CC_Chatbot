@@ -104,7 +104,7 @@ if st.session_state["is_authorized"]:
                 st.session_state["uploaded_data"] = update_df[["key word", "description", "topic"]]
                 st.success("✅ File đã được tải lên thành công. Dữ liệu sẽ hiển thị cùng các chủ đề khác.")
             else:
-                st.error("❌ File không đúng định dạng. Cần có cột 'key word' và 'description'.")[["key word", "description", "topic"]]], ignore_index=True)
+                st.error("❌ File không đúng định dạng. Cần có cột 'key word' và 'description'.")[["key word", "description", "topic"]], ignore_index=True)
                 data = data.drop_duplicates(subset="key word", keep="last")
                 data = data.drop_duplicates(subset="description", keep="first")
                 st.success("✅ Đã cập nhật dữ liệu từ file tải lên.")
