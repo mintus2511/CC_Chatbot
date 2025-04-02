@@ -103,19 +103,26 @@ with st.sidebar:
             elif code:
                 st.error("❌ Mã truy cập không đúng")
 
-# === Upload CSV to update keywords ===
+# === Upload hoặc Quản lý topic ===
 if st.session_state["is_authorized"]:
     st.markdown("---")
-    st.subheader("📤 Tải lên file CSV cập nhật từ khóa")
-
-    upload_mode = st.radio(
-        "Chọn chế độ tải lên:",
-        ["🔄 Cập nhật từ khóa đã có", "🆕 Tạo topic mới từ file"],
+    st.subheader("🛠️ Hành động dành cho Co-lead")
+    co_action = st.radio(
+        "Chọn hành động:",
+        ["📤 Tải file CSV mới", "📝 Chỉnh sửa topic đã upload", "🗑️ Xoá topic"],
         horizontal=True,
-        key="upload_mode"
+        key="co_action"
     )
 
-    uploaded_file = st.file_uploader("Chọn file CSV", type="csv")
+    if co_action == "📤 Tải file CSV mới":
+        upload_mode = st.radio(
+            "Chọn chế độ tải lên:",
+            ["🔄 Cập nhật từ khóa đã có", "🆕 Tạo topic mới từ file"],
+            horizontal=True,
+            key="upload_mode"
+        )
+
+        uploaded_file = st.file_uploader("Chọn file CSV", type="csv")
     if uploaded_file is not None:
         try:
             update_df = pd.read_csv(uploaded_file)
@@ -151,27 +158,31 @@ if st.session_state["is_authorized"]:
         except Exception as e:
             st.error(f"❌ Lỗi khi đọc file: {e}")
 
-    # === Quản lý topic đã upload ===
-    st.markdown("---")
-    st.subheader("🗂️ Quản lý topic đã upload")
-    if os.path.exists(UPLOADED_FILE):
-        try:
-            df_all = pd.read_csv(UPLOADED_FILE)
-            all_topics = sorted(df_all['topic'].dropna().unique())
-            topic_to_edit = st.selectbox("📂 Chọn topic để chỉnh sửa hoặc xoá:", all_topics)
-            new_name = st.text_input("✏️ Đổi tên topic:", value=topic_to_edit)
-            if st.button("💾 Lưu tên topic mới") and new_name != topic_to_edit:
-                df_all.loc[df_all['topic'] == topic_to_edit, 'topic'] = new_name
-                df_all.to_csv(UPLOADED_FILE, index=False)
-                st.success("✅ Đã đổi tên topic thành công.")
-                st.rerun()
-            if st.button("🗑️ Xoá toàn bộ topic này"):
-                df_all = df_all[df_all['topic'] != topic_to_edit]
-                df_all.to_csv(UPLOADED_FILE, index=False)
-                st.success(f"🗑️ Đã xoá topic '{topic_to_edit}' cùng toàn bộ từ khóa liên quan.")
-                st.rerun()
-        except Exception as e:
-            st.error(f"❌ Không thể quản lý topic: {e}")
+        elif co_action in ["📝 Chỉnh sửa topic đã upload", "🗑️ Xoá topic"]:
+        st.markdown("---")
+        st.subheader("🗂️ Quản lý topic đã upload")
+        if os.path.exists(UPLOADED_FILE):
+            try:
+                df_all = pd.read_csv(UPLOADED_FILE)
+                all_topics = sorted(df_all['topic'].dropna().unique())
+                topic_to_edit = st.selectbox("📂 Chọn topic:", all_topics)
+
+                if co_action == "📝 Chỉnh sửa topic đã upload":
+                    new_name = st.text_input("✏️ Đổi tên topic:", value=topic_to_edit)
+                    if st.button("💾 Lưu tên topic mới") and new_name != topic_to_edit:
+                        df_all.loc[df_all['topic'] == topic_to_edit, 'topic'] = new_name
+                        df_all.to_csv(UPLOADED_FILE, index=False)
+                        st.success("✅ Đã đổi tên topic thành công.")
+                        st.rerun()
+
+                elif co_action == "🗑️ Xoá topic":
+                    if st.button("🗑️ Xoá toàn bộ topic này"):
+                        df_all = df_all[df_all['topic'] != topic_to_edit]
+                        df_all.to_csv(UPLOADED_FILE, index=False)
+                        st.success(f"🗑️ Đã xoá topic '{topic_to_edit}' cùng toàn bộ từ khóa liên quan.")
+                        st.rerun()
+            except Exception as e:
+                st.error(f"❌ Không thể quản lý topic: {e}")
 
 # === GitHub Repo Info ===
 GITHUB_USER = "mintus2511"
