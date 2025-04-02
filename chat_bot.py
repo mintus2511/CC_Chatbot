@@ -107,12 +107,14 @@ if not data.empty:
                     if st.button(f"🔑 {kw}", key=f"{topic}-{kw}"):
                         set_selected_keyword(kw)
 
-        # --- Recent keyword history ---
-        if st.session_state["recent_keywords"]:
-            st.markdown("## 🕓 Từ khóa gần đây")
-            for kw in st.session_state["recent_keywords"]:
-                if st.button(f"📌 {kw}", key=f"recent-{kw}"):
-                    set_selected_keyword(kw)
+# === Show recent keywords at the bottom ===
+st.markdown("---")
+if st.session_state["recent_keywords"]:
+    st.markdown("### 🕓 Từ khóa bạn đã xem gần đây")
+    cols = st.columns(min(5, len(st.session_state["recent_keywords"])))
+    for i, kw in enumerate(st.session_state["recent_keywords"]):
+        if cols[i].button(f"{kw}", key=f"recent-bottom-{kw}"):
+            set_selected_keyword(kw)
 
     # === Main search box (optional) ===
     def search_fn(user_input):
