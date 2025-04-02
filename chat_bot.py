@@ -63,6 +63,13 @@ if "selected_topics" not in st.session_state:
 if "trigger_display" not in st.session_state:
     st.session_state["trigger_display"] = False
 
+# === Chat Display Setup ===
+def display_bot_response(keyword, description, topic):
+    st.chat_message("user").markdown(f"🔍 **Từ khóa:** `{keyword}`")
+    st.chat_message("assistant").markdown(f"**📂 Chủ đề:** `{topic}`
+
+{description}")
+
 # === User Guide ===
 with st.expander("ℹ️ Hướng dẫn sử dụng chatbot", expanded=False):
     st.info("""
@@ -181,14 +188,14 @@ if not data.empty:
         for kw in st.session_state["multi_filter_keywords"]:
             matches = data[data["key word"].str.lower().str.contains(kw.lower(), na=False)]
             for _, row in matches.iterrows():
-                st.write(f"🤖 **{kw}**: {row['description']}")
+                display_bot_response(kw, row["description"], row["topic"])
     elif st.session_state["selected_keyword"] and st.session_state["trigger_display"]:
         st.session_state["trigger_display"] = False
         kw = st.session_state["selected_keyword"]
         matches = data[data["key word"].str.lower().str.contains(kw.lower(), na=False)]
         if not matches.empty:
             for _, row in matches.iterrows():
-                st.write("🤖 **Bot:**", row["description"])
+                display_bot_response(kw, row["description"], row["topic"])
         else:
             st.info("⚠️ Không tìm thấy mô tả cho từ khóa này.")
 else:
