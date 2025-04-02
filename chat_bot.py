@@ -65,7 +65,6 @@ if "selected_topics" not in st.session_state:
 if "trigger_display" not in st.session_state:
     st.session_state["trigger_display"] = False
 
-# === Chat Display Setup ===
 def display_bot_response(keyword, description, topic):
     st.chat_message("user").markdown(f"🔍 **Từ khóa:** `{keyword}`")
     st.chat_message("assistant").markdown(
@@ -76,6 +75,39 @@ def display_bot_response(keyword, description, topic):
         "description": description,
         "topic": topic
     })
+
+
+# === Co-lead Authorization ===
+if "is_authorized" not in st.session_state:
+    st.session_state["is_authorized"] = False
+
+if not st.session_state["is_authorized"]:
+    code = st.text_input("🔑 Nhập mã truy cập Co-lead")
+    if code == "COLEAD2024":
+        st.session_state["is_authorized"] = True
+        st.success("✅ Xác thực thành công. Bạn có quyền tải lên dữ liệu mới.")
+    elif code:
+        st.error("❌ Mã truy cập không đúng")
+
+# === Upload CSV to update keywords ===
+if st.session_state["is_authorized"]:
+    st.markdown("---")
+    st.subheader("📤 Tải lên file CSV cập nhật từ khóa")
+    uploaded_file = st.file_uploader("Chọn file CSV để cập nhật từ khóa và mô tả", type="csv")
+    if uploaded_file is not None:
+        try:
+            update_df = pd.read_csv(uploaded_file)
+            update_df.columns = update_df.columns.str.lower().str.strip()
+            if {"key word", "description"}.issubset(update_df.columns):
+                update_df["topic"] = "Tải lên"
+                data = pd.concat([data, update_df[["key word", "description", "topic"]]], ignore_index=True)
+                data = data.drop_duplicates(subset="key word", keep="last")
+                data = data.drop_duplicates(subset="description", keep="first")
+                st.success("✅ Đã cập nhật dữ liệu từ file tải lên.")
+            else:
+                st.error("❌ File không đúng định dạng. Cần có cột 'key word' và 'description'.")
+        except Exception as e:
+            st.error(f"❌ Lỗi khi đọc file: {e}")
 
 # === User Guide ===
 with st.expander("ℹ️ Hướng dẫn sử dụng chatbot", expanded=False):
@@ -146,6 +178,10 @@ if not data.empty:
 
         if st.session_state["pinned_keywords"]:
             st.markdown("### 📌 Từ khóa đã ghim")
+            if st.button("🧼 Xóa toàn bộ từ khóa đã ghim"):
+                st.session_state["pinned_keywords"] = []
+                save_pinned_keywords([])
+                st.rerun()
             if st.button("🗑️ Xóa tất cả từ khóa đã ghim"):
                 st.session_state["pinned_keywords"] = []
                 save_pinned_keywords([])
