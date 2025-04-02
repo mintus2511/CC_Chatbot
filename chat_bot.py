@@ -66,6 +66,8 @@ if "selected_topics" not in st.session_state:
     st.session_state["selected_topics"] = []
 if "trigger_display" not in st.session_state:
     st.session_state["trigger_display"] = False
+if "is_authorized" not in st.session_state:
+    st.session_state["is_authorized"] = False 
 
 # === Load uploaded file nếu đã tồn tại ===
 all_dataframes = []
