@@ -14,6 +14,10 @@ if "pinned_keywords" not in st.session_state:
     st.session_state["pinned_keywords"] = []
 if "multi_filter_keywords" not in st.session_state:
     st.session_state["multi_filter_keywords"] = []
+if "selected_topics" not in st.session_state:
+    st.session_state["selected_topics"] = []
+if "trigger_display" not in st.session_state:
+    st.session_state["trigger_display"] = False
 
 # === User Guide ===
 with st.expander("ℹ️ Hướng dẫn sử dụng chatbot", expanded=False):
@@ -80,6 +84,7 @@ data = load_csvs(csv_files)
 # === Step 4: Setup helper ===
 def set_selected_keyword(keyword):
     st.session_state["selected_keyword"] = keyword
+    st.session_state["trigger_display"] = True
 
 # === Step 5: UI and logic ===
 if not data.empty:
@@ -87,24 +92,32 @@ if not data.empty:
     all_topics = sorted(data["topic"].dropna().unique())
 
     with st.sidebar:
-        st.markdown("## 📌 Tính năng mở rộng")
+        # === Lọc theo chủ đề ===
+        st.markdown("### 🧭 Lọc theo chủ đề")
+        selected_topics = st.multiselect("Chọn chủ đề:", all_topics)
+        st.session_state["selected_topics"] = selected_topics
 
-        # Pinned Keywords
+        # === Ghim từ khóa theo nhóm ===
         if st.session_state["pinned_keywords"]:
             st.markdown("### 📌 Từ khóa đã ghim")
-            for pk in st.session_state["pinned_keywords"]:
-                if st.button(f"📍 {pk}", key=f"pin-{pk}"):
-                    set_selected_keyword(pk)
-                    st.rerun()
+            pinned_df = data[data["key word"].isin(st.session_state["pinned_keywords"])]
+            for topic in sorted(pinned_df["topic"].unique()):
+                with st.expander(f"📁 {topic}", expanded=False):
+                    for kw in sorted(pinned_df[pinned_df["topic"] == topic]["key word"].unique()):
+                        if st.button(f"📍 {kw}", key=f"pinned-{kw}"):
+                            set_selected_keyword(kw)
+                            st.rerun()
 
-        # Multi-filter
+        # === Bộ lọc nhiều từ khóa ===
         st.markdown("### 🧠 Lọc nhiều từ khóa")
-        selected_multi = st.multiselect("Chọn nhiều từ khóa:", all_keywords)
+        filtered_keywords = data[data["topic"].isin(selected_topics)]["key word"].unique() if selected_topics else all_keywords
+        selected_multi = st.multiselect("Chọn nhiều từ khóa:", sorted(filtered_keywords))
         st.session_state["multi_filter_keywords"] = selected_multi
 
-        # Browse by topic and pin
-        st.markdown("### 📚 Danh mục theo chủ đề")
-        for topic in all_topics:
+        # === Duyệt từ khóa theo chủ đề ===
+        st.markdown("### 📚 Danh mục từ khóa")
+        topics_to_show = selected_topics if selected_topics else all_topics
+        for topic in topics_to_show:
             with st.expander(f"📁 {topic}", expanded=False):
                 topic_data = data[data["topic"] == topic]
                 topic_keywords = sorted(topic_data["key word"].dropna().astype(str).unique())
@@ -133,14 +146,15 @@ if not data.empty:
     if selected_keyword:
         set_selected_keyword(selected_keyword)
 
-    # === Show chatbot responses ===
+    # === Hiển thị kết quả ===
     if st.session_state["multi_filter_keywords"]:
         st.subheader("📋 Kết quả theo nhiều từ khóa:")
         for kw in st.session_state["multi_filter_keywords"]:
             matches = data[data["key word"].str.lower().str.contains(kw.lower(), na=False)]
             for _, row in matches.iterrows():
                 st.write(f"🤖 **{kw}**: {row['description']}")
-    elif st.session_state["selected_keyword"]:
+    elif st.session_state["selected_keyword"] and st.session_state["trigger_display"]:
+        st.session_state["trigger_display"] = False
         kw = st.session_state["selected_keyword"]
         matches = data[data["key word"].str.lower().str.contains(kw.lower(), na=False)]
         if not matches.empty:
