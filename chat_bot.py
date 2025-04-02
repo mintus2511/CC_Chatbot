@@ -394,11 +394,7 @@ if not data.empty:
 
         if st.session_state["pinned_keywords"]:
             st.markdown("### 📌 Từ khóa đã ghim")
-            if st.button("🧼 Xóa toàn bộ từ khóa đã ghim"):
-                st.session_state["pinned_keywords"] = []
-                save_pinned_keywords([])
-                st.rerun()
-            if st.button("🗑️ Xóa tất cả từ khóa đã ghim"):
+            if st.button("Xóa tất cả từ khóa đã ghim"):
                 st.session_state["pinned_keywords"] = []
                 save_pinned_keywords([])
                 st.rerun()
