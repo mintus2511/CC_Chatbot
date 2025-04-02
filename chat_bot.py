@@ -108,8 +108,8 @@ if st.session_state["is_authorized"]:
                 data = data.drop_duplicates(subset="key word", keep="last")
                 data = data.drop_duplicates(subset="description", keep="first")
                 st.success("✅ Đã cập nhật dữ liệu từ file tải lên.")
-                else:
-                    st.error("❌ File không đúng định dạng. Cần có cột 'key word' và 'description'.")
+    else:
+        st.error("❌ File không đúng định dạng. Cần có cột 'key word' và 'description'.")
         except Exception as e:
             st.error(f"❌ Lỗi khi đọc file: {e}")
 
