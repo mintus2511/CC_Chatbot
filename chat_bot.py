@@ -86,25 +86,38 @@ def load_csvs(csv_files):
 csv_files = get_csv_file_links()
 data, removed_duplicates = load_csvs(csv_files)
 
-# === Step 4: Chatbot UI with Optional Sidebar Filter ===
+# === Step 4: Chatbot UI with Sidebar ===
 if not data.empty:
     all_keywords = sorted(data["key word"].dropna().astype(str).unique())
 
-    # === Sidebar: Full topic & keyword directory ===
-with st.sidebar.expander("📂 Danh mục từ khóa theo chủ đề", expanded=False):
-    st.markdown("Dưới đây là tất cả các chủ đề và từ khóa tương ứng:")
+    # === Sidebar: Topic/Keyword filter for search ===
+    with st.sidebar.expander("🔍 Bộ lọc từ khóa", expanded=False):
+        st.markdown("Bạn có thể chọn nhanh theo chủ đề và từ khóa")
 
-    all_topics = sorted(data["topic"].dropna().unique())
+        all_topics = sorted(data["topic"].dropna().unique())
+        selected_topic = st.selectbox("Chọn chủ đề", ["Tất cả"] + all_topics)
 
-    for topic in all_topics:
-        st.markdown(f"### 📁 {topic}")
+        if selected_topic != "Tất cả":
+            filtered_data = data[data["topic"] == selected_topic]
+        else:
+            filtered_data = data
 
-        topic_data = data[data["topic"] == topic]
-        topic_keywords = sorted(topic_data["key word"].dropna().astype(str).unique())
+        topic_keywords = sorted(filtered_data["key word"].dropna().astype(str).unique())
+        selected_sidebar_keyword = st.selectbox("🔑 Chọn từ khóa", [""] + topic_keywords)
 
-        for kw in topic_keywords:
-            st.markdown(f"- 🔑 `{kw}`")
+        if selected_sidebar_keyword:
+            st.session_state["selected_keyword"] = selected_sidebar_keyword
 
+    # === Sidebar: Full keyword directory grouped by topic ===
+    with st.sidebar.expander("📂 Danh mục từ khóa theo chủ đề", expanded=False):
+        st.markdown("### 📋 Tất cả các chủ đề và từ khóa:")
+
+        for topic in sorted(data["topic"].dropna().unique()):
+            st.markdown(f"#### 📁 {topic}")
+            topic_data = data[data["topic"] == topic]
+            keywords = sorted(topic_data["key word"].dropna().astype(str).unique())
+            for kw in keywords:
+                st.markdown(f"- 🔑 `{kw}`")
 
     # === Main search UI ===
     def search_fn(user_input):
@@ -129,7 +142,6 @@ with st.sidebar.expander("📂 Danh mục từ khóa theo chủ đề", expanded
             st.subheader(f"Kết quả cho từ khóa: `{keyword}`")
             for _, row in matches.iterrows():
                 st.write("🤖 **Bot:**", row["description"])
-                # Uncomment to show more detail:
                 # st.caption(f"(📂 Chủ đề: {row['topic']} | 🔑 Từ khóa: {row['key word']})")
         else:
             st.info("Không tìm thấy mô tả cho từ khóa này.")
