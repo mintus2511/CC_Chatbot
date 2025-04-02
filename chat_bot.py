@@ -122,38 +122,52 @@ if st.session_state["is_authorized"]:
             key="upload_mode"
         )
 
-        uploaded_file = st.file_uploader("Chọn file CSV", type="csv")
+        uploaded_files = st.file_uploader("Chọn file CSV", type="csv", accept_multiple_files=True)
 
-        if uploaded_file is not None:
-            try:
-                update_df = pd.read_csv(uploaded_file)
-                update_df.columns = update_df.columns.str.lower().str.strip()
-                if {"key word", "description"}.issubset(update_df.columns):
-                    if "uploaded_data" in st.session_state:
-                        old_df = st.session_state["uploaded_data"]
-                    elif os.path.exists(UPLOADED_FILE):
-                        old_df = pd.read_csv(UPLOADED_FILE)
-                        old_df.columns = old_df.columns.str.lower().str.strip()
+        if uploaded_files:
+            for uploaded_file in uploaded_files:
+                try:
+                    update_df = pd.read_csv(uploaded_file)
+                    update_df.columns = update_df.columns.str.lower().str.strip()
+                    if {"key word", "description"}.issubset(update_df.columns):
+                        if "uploaded_data" in st.session_state:
+                            old_df = st.session_state["uploaded_data"]
+                        elif os.path.exists(UPLOADED_FILE):
+                            old_df = pd.read_csv(UPLOADED_FILE)
+                            old_df.columns = old_df.columns.str.lower().str.strip()
+                        else:
+                            old_df = pd.DataFrame(columns=["key word", "description", "topic"])
+
+                        if "topic" not in update_df.columns:
+                            update_df["topic"] = None
+
+                        if st.session_state["upload_mode"] == "🔄 Cập nhật từ khóa đã có":
+                            merged_df = pd.merge(update_df, old_df[['key word', 'topic']], on='key word', how='left', suffixes=('', '_old'))
+                            merged_df['topic'] = merged_df['topic'].combine_first(merged_df['topic_old'])
+                            merged_df.drop(columns=['topic_old'], inplace=True)
+                            merged_df['topic'] = merged_df['topic'].fillna('Tải lên')
+                        else:
+                            default_topic = os.path.splitext(uploaded_file.name)[0]
+                            custom_topic = st.text_input(f"📝 Đặt tên cho topic mới cho file `{uploaded_file.name}`:", value=default_topic, key=f"topic_name_{uploaded_file.name}")
+                            update_df['topic'] = custom_topic
+                            merged_df = update_df
+
+                        # Gộp vào dữ liệu đang có trong session
+                        if "uploaded_data" in st.session_state:
+                            st.session_state["uploaded_data"] = pd.concat([
+                                st.session_state["uploaded_data"],
+                                merged_df[["key word", "description", "topic"]]
+                            ], ignore_index=True)
+                        else:
+                            st.session_state["uploaded_data"] = merged_df[["key word", "description", "topic"]]
+
+                        # Lưu vào file
+                        st.session_state["uploaded_data"].to_csv(UPLOADED_FILE, index=False)
+                        st.success(f"✅ Đã xử lý và lưu file: `{uploaded_file.name}`")
                     else:
-                        old_df = pd.DataFrame(columns=["key word", "description", "topic"])
-
-                    if "topic" not in update_df.columns:
-                        update_df["topic"] = None
-
-                    if st.session_state["upload_mode"] == "🔄 Cập nhật từ khóa đã có":
-                        merged_df = pd.merge(update_df, old_df[['key word', 'topic']], on='key word', how='left', suffixes=('', '_old'))
-                        merged_df['topic'] = merged_df['topic'].combine_first(merged_df['topic_old'])
-                        merged_df.drop(columns=['topic_old'], inplace=True)
-                        merged_df['topic'] = merged_df['topic'].fillna('Tải lên')
-                    else:
-                        default_topic = os.path.splitext(uploaded_file.name)[0]
-                        custom_topic = st.text_input("📝 Đặt tên cho topic mới:", value=default_topic)
-                        update_df['topic'] = custom_topic
-                        merged_df = update_df
-
-                    st.session_state["uploaded_data"] = merged_df[["key word", "description", "topic"]]
-                    merged_df.to_csv(UPLOADED_FILE, index=False)
-                    st.success("✅ File đã được tải lên và lưu trữ thành công.")
+                        st.error(f"❌ File `{uploaded_file.name}` không đúng định dạng. Cần có cột 'key word' và 'description'.")
+                except Exception as e:
+                    st.error(f"❌ Lỗi khi đọc file `{uploaded_file.name}`: {e}")
                 else:
                     st.error("❌ File không đúng định dạng. Cần có cột 'key word' và 'description'.")
             except Exception as e:
@@ -161,12 +175,29 @@ if st.session_state["is_authorized"]:
 
     elif co_action in ["📝 Chỉnh sửa topic đã upload", "🗑️ Xoá topic"]:
         st.markdown("---")
-        st.subheader("🗂️ Quản lý topic đã upload")
+        st.subheader("🗂️ Quản lý topic và từ khóa")
         if os.path.exists(UPLOADED_FILE):
             try:
                 df_all = pd.read_csv(UPLOADED_FILE)
                 all_topics = sorted(df_all['topic'].dropna().unique())
                 topic_to_edit = st.selectbox("📂 Chọn topic:", all_topics)
+                df_topic = df_all[df_all['topic'] == topic_to_edit].copy()
+
+                st.dataframe(df_topic)
+
+                edited_df = st.data_editor(
+                    df_topic,
+                    num_rows="dynamic",
+                    use_container_width=True,
+                    key="edit_table"
+                )
+
+                if st.button("💾 Lưu chỉnh sửa"):
+                    df_all = df_all[df_all['topic'] != topic_to_edit]
+                    df_all = pd.concat([df_all, edited_df], ignore_index=True)
+                    df_all.to_csv(UPLOADED_FILE, index=False)
+                    st.success("✅ Đã lưu chỉnh sửa thành công.")
+                    st.rerun()
 
                 if co_action == "📝 Chỉnh sửa topic đã upload":
                     new_name = st.text_input("✏️ Đổi tên topic:", value=topic_to_edit)
