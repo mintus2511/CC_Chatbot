@@ -114,24 +114,24 @@ if not data.empty:
         selected_multi = st.multiselect("Chọn nhiều từ khóa:", sorted(filtered_keywords))
         st.session_state["multi_filter_keywords"] = selected_multi
 
-        # === Duyệt từ khóa theo chủ đề ===
+        # === Danh sách từ khóa hiển thị trực tiếp ===
         st.markdown("### 📚 Danh mục từ khóa")
         topics_to_show = selected_topics if selected_topics else all_topics
         for topic in topics_to_show:
-            with st.expander(f"📁 {topic}", expanded=False):
-                topic_data = data[data["topic"] == topic]
-                topic_keywords = sorted(topic_data["key word"].dropna().astype(str).unique())
-                for kw in topic_keywords:
-                    cols = st.columns([0.8, 0.2])
-                    if cols[0].button(f"🔑 {kw}", key=f"kw-{topic}-{kw}"):
-                        set_selected_keyword(kw)
-                        st.rerun()
-                    pin_icon = "📌" if kw in st.session_state["pinned_keywords"] else "☆"
-                    if cols[1].button(pin_icon, key=f"pin-{topic}-{kw}"):
-                        if kw in st.session_state["pinned_keywords"]:
-                            st.session_state["pinned_keywords"].remove(kw)
-                        else:
-                            st.session_state["pinned_keywords"].insert(0, kw)
+            st.markdown(f"**📁 {topic}**")
+            topic_data = data[data["topic"] == topic]
+            topic_keywords = sorted(topic_data["key word"].dropna().astype(str).unique())
+            for kw in topic_keywords:
+                cols = st.columns([0.8, 0.2])
+                if cols[0].button(f"🔑 {kw}", key=f"kw-{topic}-{kw}"):
+                    set_selected_keyword(kw)
+                    st.rerun()
+                pin_icon = "📌" if kw in st.session_state["pinned_keywords"] else "☆"
+                if cols[1].button(pin_icon, key=f"pin-{topic}-{kw}"):
+                    if kw in st.session_state["pinned_keywords"]:
+                        st.session_state["pinned_keywords"].remove(kw)
+                    else:
+                        st.session_state["pinned_keywords"].insert(0, kw)
 
     # === Search box ===
     def search_fn(user_input):
