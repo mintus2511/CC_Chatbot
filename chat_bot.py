@@ -65,8 +65,14 @@ if "trigger_display" not in st.session_state:
 
 # === Chat Display Setup ===
 def display_bot_response(keyword, description, topic):
-    st.chat_message("user").markdown(f"🔍 **Từ khóa:** `{keyword}`")
-    st.chat_message("assistant").markdown(f"**📂 Chủ đề:** `{topic}`\n\n{description}")
+    with st.container():
+        st.markdown(f"""
+        <div style='background-color:#f4f4f4;padding:15px;border-radius:10px;margin-bottom:10px;'>
+            <b>🔑 {keyword}</b><br>
+            <i>📂 Chủ đề:</i> <code>{topic}</code><br><br>
+            {description}
+        </div>
+        """, unsafe_allow_html=True)
 
 # === User Guide ===
 with st.expander("ℹ️ Hướng dẫn sử dụng chatbot", expanded=False):
@@ -137,6 +143,10 @@ if not data.empty:
 
         if st.session_state["pinned_keywords"]:
             st.markdown("### 📌 Từ khóa đã ghim")
+            if st.button("🗑️ Xóa tất cả từ khóa đã ghim"):
+                st.session_state["pinned_keywords"] = []
+                save_pinned_keywords([])
+                st.rerun()
             pinned_df = data[data["key word"].isin(st.session_state["pinned_keywords"])]
             for topic in sorted(pinned_df["topic"].unique()):
                 with st.expander(f"📁 {topic}", expanded=False):
