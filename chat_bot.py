@@ -132,25 +132,27 @@ if not data.empty:
         else:
             st.info("Không tìm thấy mô tả cho từ khóa này.")
 
-    # === Show recent keyword history at bottom ===
-    st.markdown("---")
-    if st.session_state["recent_keywords"]:
-        st.markdown("### 🕓 Từ khóa bạn đã xem gần đây")
+# === Show recent keyword history at bottom ===
+st.markdown("---")
+if st.session_state["recent_keywords"]:
+    st.markdown("### 🕓 Từ khóa bạn đã xem gần đây")
 
-        # "Xóa lịch sử" button
-        col1, col2 = st.columns([0.8, 0.2])
-        with col2:
-            if st.button("🗑️ Xóa lịch sử", key="clear-history"):
-                st.session_state["recent_keywords"] = []
-                st.session_state["selected_keyword"] = None
-                st.experimental_rerun()
+    # "Xóa lịch sử" button
+    col1, col2 = st.columns([0.8, 0.2])
+    with col2:
+        clear = st.button("🗑️ Xóa lịch sử", key="clear-history")
 
-        # Display recent keywords as clickable buttons
-        cols = st.columns(min(5, len(st.session_state["recent_keywords"])))
-        for i, kw in enumerate(st.session_state["recent_keywords"]):
-            if cols[i].button(f"{kw}", key=f"recent-bottom-{kw}"):
-                set_selected_keyword(kw)
-                st.experimental_rerun()
+    if clear:
+        st.session_state["recent_keywords"] = []
+        st.session_state["selected_keyword"] = None
+        st.rerun()
+
+    # Display recent keywords as clickable buttons
+    cols = st.columns(min(5, len(st.session_state["recent_keywords"])))
+    for i, kw in enumerate(st.session_state["recent_keywords"]):
+        if cols[i].button(f"{kw}", key=f"recent-bottom-{kw}"):
+            set_selected_keyword(kw)
+            st.rerun()
 
 else:
     st.error("⚠️ Không tìm thấy dữ liệu hợp lệ.")
