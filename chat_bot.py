@@ -449,13 +449,13 @@ if not data.empty:
     if st.session_state["multi_filter_keywords"]:
         st.subheader("📋 Kết quả theo nhiều từ khóa:")
         for kw in st.session_state["multi_filter_keywords"]:
-            matches = data[data["key word"].str.lower().str.contains(kw.lower(), na=False)]
+            matches = data[data["key word"].str.lower() == kw.lower()]
             for _, row in matches.iterrows():
                 display_bot_response(kw, row["description"], row["topic"])
     elif st.session_state["selected_keyword"] and st.session_state["trigger_display"]:
         st.session_state["trigger_display"] = False
         kw = st.session_state["selected_keyword"]
-        matches = data[data["key word"].str.lower().str.contains(kw.lower(), na=False)]
+        matches = data[data["key word"].str.lower() == kw.lower()]
         if not matches.empty:
             for _, row in matches.iterrows():
                 display_bot_response(kw, row["description"], row["topic"])
