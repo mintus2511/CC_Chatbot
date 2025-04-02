@@ -219,49 +219,49 @@ if st.session_state["is_authorized"]:
                 except Exception as e:
                     st.error(f"❌ Lỗi khi đọc file `{uploaded_file.name}`: {e}")
     elif co_action == "➕ Thêm từ khóa thủ công":
-    st.markdown("---")
-    st.subheader("🧾 Nhập từ khóa mới")
+        st.markdown("---")
+        st.subheader("🧾 Nhập từ khóa mới")
 
     # ✅ Hiển thị chọn hoặc nhập chủ đề mới - nằm ngoài form để phản ứng ngay lập tức
-    existing_topics = sorted(all_data_combined["topic"].dropna().unique())
-    topic_choice = st.selectbox(
-        "📂 Chọn chủ đề (hoặc nhập mới)",
-        options=["🔄 Nhập mới..."] + existing_topics,
-        index=1 if existing_topics else 0,
-        key="manual_topic_select"
-    )
+        existing_topics = sorted(all_data_combined["topic"].dropna().unique())
+        topic_choice = st.selectbox(
+            "📂 Chọn chủ đề (hoặc nhập mới)",
+            options=["🔄 Nhập mới..."] + existing_topics,
+            index=1 if existing_topics else 0,
+            key="manual_topic_select"
+        )
 
-    if topic_choice == "🔄 Nhập mới...":
-        topic = st.text_input("📌 Nhập tên chủ đề mới", key="manual_new_topic").strip()
-    else:
-        topic = topic_choice
+        if topic_choice == "🔄 Nhập mới...":
+            topic = st.text_input("📌 Nhập tên chủ đề mới", key="manual_new_topic").strip()
+        else:
+            topic = topic_choice
 
-    # ✅ Form nhập từ khóa và mô tả
-    with st.form("manual_add_keyword"):
-        keyword = st.text_input("🔑 Từ khóa").strip()
-        description = st.text_area("📝 Mô tả").strip()
+        # ✅ Form nhập từ khóa và mô tả
+        with st.form("manual_add_keyword"):
+            keyword = st.text_input("🔑 Từ khóa").strip()
+            description = st.text_area("📝 Mô tả").strip()
 
-        submitted = st.form_submit_button("✅ Lưu từ khóa mới")
-        if submitted:
-            if keyword and description and topic:
-                new_row = pd.DataFrame([{
-                    "key word": keyword,
-                    "description": description,
-                    "topic": topic
-                }])
+            submitted = st.form_submit_button("✅ Lưu từ khóa mới")
+            if submitted:
+                if keyword and description and topic:
+                    new_row = pd.DataFrame([{
+                        "key word": keyword,
+                        "description": description,
+                        "topic": topic
+                    }])
 
-                if os.path.exists(UPLOADED_FILE):
-                    df_existing = pd.read_csv(UPLOADED_FILE)
+                    if os.path.exists(UPLOADED_FILE):
+                        df_existing = pd.read_csv(UPLOADED_FILE)
+                    else:
+                        df_existing = pd.DataFrame(columns=["key word", "description", "topic"])
+
+                    df_combined = pd.concat([df_existing, new_row], ignore_index=True)
+                    df_combined.to_csv(UPLOADED_FILE, index=False)
+
+                    st.success("✅ Đã thêm từ khóa mới thành công.")
+                    st.rerun()
                 else:
-                    df_existing = pd.DataFrame(columns=["key word", "description", "topic"])
-
-                df_combined = pd.concat([df_existing, new_row], ignore_index=True)
-                df_combined.to_csv(UPLOADED_FILE, index=False)
-
-                st.success("✅ Đã thêm từ khóa mới thành công.")
-                st.rerun()
-            else:
-                st.error("❗ Vui lòng điền đầy đủ cả 3 cột.")
+                    st.error("❗ Vui lòng điền đầy đủ cả 3 cột.")
 
 
     elif co_action in ["📝 Chỉnh sửa topic đã upload", "🗑️ Xoá topic"]:
