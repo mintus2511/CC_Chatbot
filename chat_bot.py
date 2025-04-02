@@ -113,14 +113,29 @@ if st.session_state["is_authorized"]:
             update_df = pd.read_csv(uploaded_file)
             update_df.columns = update_df.columns.str.lower().str.strip()
             if {"key word", "description"}.issubset(update_df.columns):
-                update_df["topic"] = "Tải lên"
-                st.session_state["uploaded_data"] = update_df[["key word", "description", "topic"]]
-                update_df.to_csv(UPLOADED_FILE, index=False)
+                # Nếu có dữ liệu cũ => giữ topic cũ nếu trùng từ khóa
+                if "uploaded_data" in st.session_state:
+                    old_df = st.session_state["uploaded_data"]
+                elif os.path.exists(UPLOADED_FILE):
+                    old_df = pd.read_csv(UPLOADED_FILE)
+                    old_df.columns = old_df.columns.str.lower().str.strip()
+                else:
+                    old_df = pd.DataFrame(columns=["key word", "description", "topic"])
+
+                merged_df = update_df.copy()
+                merged_df["topic"] = merged_df["key word"].map(
+                    dict(zip(old_df["key word"], old_df["topic"]))
+                )
+                merged_df["topic"] = merged_df["topic"].fillna("Tải lên")
+
+                st.session_state["uploaded_data"] = merged_df[["key word", "description", "topic"]]
+                merged_df.to_csv(UPLOADED_FILE, index=False)
                 st.success("✅ File đã được tải lên và lưu trữ thành công.")
             else:
                 st.error("❌ File không đúng định dạng. Cần có cột 'key word' và 'description'.")
         except Exception as e:
             st.error(f"❌ Lỗi khi đọc file: {e}")
+
 
 # === GitHub Repo Info ===
 GITHUB_USER = "mintus2511"
