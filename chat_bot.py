@@ -11,16 +11,11 @@ with st.expander("ℹ️ Hướng dẫn sử dụng chatbot", expanded=False):
     st.info("""
     **📘 Call Center Chatbot - Hướng Dẫn Sử Dụng**
 
-    **1. Nhập từ khóa**  
-    🔍 Gõ từ khóa vào ô tìm kiếm (ví dụ: *học phí, học bổng, đăng ký, lịch học*...).  
-    Chatbot sẽ tự động gợi ý những từ phù hợp.
+    **1. Gõ từ khóa**  
+    🔍 Hoặc chọn từ khóa trực tiếp trong thanh bên trái để xem mô tả.
 
-    **2. Hoặc chọn từ khóa ở thanh bên**  
-    📂 Chọn một chủ đề và từ khóa trong thanh bên trái để xem câu trả lời.
-
-    **3. Dữ liệu tự động cập nhật**  
-    📂 Dữ liệu được lấy từ GitHub và làm sạch trước khi hiển thị.  
-    Hệ thống chỉ giữ lại phiên bản mới nhất của mỗi từ khóa.
+    **2. Dữ liệu tự động cập nhật**  
+    📂 Dữ liệu được lấy từ GitHub và làm sạch trước khi hiển thị.
 
     **🛠 Góp ý & Báo lỗi**  
     Vui lòng liên hệ nhóm phát triển tại: [GitHub Repo](https://github.com/Menbeo/-HUHU-)
@@ -67,10 +62,7 @@ def load_csvs(csv_files):
         except Exception as e:
             st.warning(f"⚠️ Lỗi đọc {name}: {e}")
 
-    # ✅ Keep only the latest version of each "key word"
     combined = combined.drop_duplicates(subset="key word", keep="last")
-
-    # ✅ Remove duplicate descriptions
     dupes = combined[combined.duplicated("description", keep=False)].copy()
     removed_duplicates = dupes[dupes.duplicated("description", keep="first")]
     cleaned_data = combined.drop_duplicates(subset="description", keep="first")
@@ -81,49 +73,39 @@ def load_csvs(csv_files):
 csv_files = get_csv_file_links()
 data, removed_duplicates = load_csvs(csv_files)
 
-# === Step 4: UI Logic ===
+# === Step 4: UI & Logic ===
 if not data.empty:
     all_keywords = sorted(data["key word"].dropna().astype(str).unique())
     all_topics = sorted(data["topic"].dropna().unique())
 
-    # === SIDEBAR: Topic & Keyword Picker ===
+    # === Sidebar: Interactive keyword buttons grouped by topic ===
     with st.sidebar:
-        with st.expander("🎯 Chọn nhanh theo chủ đề & từ khóa", expanded=True):
-            selected_topic = st.selectbox("📁 Chủ đề", [""] + all_topics)
+        st.markdown("## 📚 Danh mục từ khóa")
+        st.markdown("Nhấn vào từ khóa để xem câu trả lời tương ứng.")
 
-            if selected_topic:
-                topic_data = data[data["topic"] == selected_topic]
-                topic_keywords = sorted(topic_data["key word"].dropna().astype(str).unique())
-                selected_kw = st.selectbox("🔑 Từ khóa", [""] + topic_keywords)
-
-                if selected_kw:
-                    st.session_state["selected_keyword"] = selected_kw
-
-        with st.expander("📚 Danh mục tất cả từ khóa", expanded=False):
-            st.markdown("Dưới đây là toàn bộ danh sách từ khóa theo từng chủ đề:")
-
-            for topic in all_topics:
-                st.markdown(f"#### 📁 {topic}")
+        for topic in all_topics:
+            with st.expander(f"📁 {topic}", expanded=False):
                 topic_data = data[data["topic"] == topic]
-                keywords = sorted(topic_data["key word"].dropna().astype(str).unique())
-                for kw in keywords:
-                    st.markdown(f"- 🔑 `{kw}`")
+                topic_keywords = sorted(topic_data["key word"].dropna().astype(str).unique())
+                for kw in topic_keywords:
+                    if st.button(f"🔑 {kw}", key=f"{topic}-{kw}"):
+                        st.session_state["selected_keyword"] = kw
 
-    # === MAIN SEARCH BOX ===
+    # === Main search box (optional) ===
     def search_fn(user_input):
         return [kw for kw in all_keywords if user_input.lower() in kw.lower()]
 
     selected_keyword = st_searchbox(
         search_fn,
         key="keyword_search",
-        label="🔍 Gõ từ khóa",
-        placeholder="Ví dụ: học phí, học bổng, đăng ký..."
+        label="🔍 Gõ từ khóa để tìm nhanh",
+        placeholder="Ví dụ: học phí, học bổng..."
     )
 
     if selected_keyword:
         st.session_state["selected_keyword"] = selected_keyword
 
-    # === RESULT: Show chatbot response ===
+    # === Main Output: Bot Answer ===
     if "selected_keyword" in st.session_state:
         keyword = st.session_state["selected_keyword"]
         matches = data[data["key word"].str.lower().str.contains(keyword.lower(), na=False)]
