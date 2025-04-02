@@ -76,13 +76,15 @@ data, removed_duplicates = load_csvs(csv_files)
 # === Step 4: Setup session state ===
 if "selected_keyword" not in st.session_state:
     st.session_state["selected_keyword"] = None
-
 if "recent_keywords" not in st.session_state:
     st.session_state["recent_keywords"] = []
+if "trigger_display" not in st.session_state:
+    st.session_state["trigger_display"] = False
 
 def set_selected_keyword(keyword):
     """Set the selected keyword and update recent history"""
     st.session_state["selected_keyword"] = keyword
+    st.session_state["trigger_display"] = True
     if keyword not in st.session_state["recent_keywords"]:
         st.session_state["recent_keywords"].insert(0, keyword)
         st.session_state["recent_keywords"] = st.session_state["recent_keywords"][:5]
@@ -117,13 +119,15 @@ if not data.empty:
         placeholder="Ví dụ: học phí, học bổng..."
     )
 
-    # === If search box returns a keyword, update selection
     if selected_keyword:
         set_selected_keyword(selected_keyword)
 
-    # === Show chatbot response (always from session_state)
+    # === Show chatbot response (after any click/search)
     keyword = st.session_state.get("selected_keyword")
-    if keyword:
+    should_show = st.session_state.get("trigger_display", False)
+
+    if keyword and should_show:
+        st.session_state["trigger_display"] = False  # Reset after showing
         matches = data[data["key word"].str.lower().str.contains(keyword.lower(), na=False)]
 
         if not matches.empty:
@@ -141,14 +145,13 @@ if not data.empty:
         # "Xóa lịch sử" button
         col1, col2 = st.columns([0.8, 0.2])
         with col2:
-            clear = st.button("🗑️ Xóa lịch sử", key="clear-history")
+            if st.button("🗑️ Xóa lịch sử", key="clear-history"):
+                st.session_state["recent_keywords"] = []
+                st.session_state["selected_keyword"] = None
+                st.session_state["trigger_display"] = False
+                st.rerun()
 
-        if clear:
-            st.session_state["recent_keywords"] = []
-            st.session_state["selected_keyword"] = None
-            st.rerun()
-
-        # Display recent keywords as clickable buttons
+        # Recent keywords as buttons
         cols = st.columns(min(5, len(st.session_state["recent_keywords"])))
         for i, kw in enumerate(st.session_state["recent_keywords"]):
             if cols[i].button(f"{kw}", key=f"recent-bottom-{kw}"):
