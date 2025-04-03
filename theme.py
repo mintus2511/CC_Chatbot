@@ -21,7 +21,7 @@ def apply_theme(user_id: str):
     # === Sidebar: nút chuyển chế độ ===
     with st.sidebar:
         st.markdown("### 🌓 Giao diện")
-        label = "🌞 Chuyển sang Sáng" if is_dark else "🌚 Chuyển sang Tối"
+        label = "🌞 Chế độ Sáng" if is_dark else "🌚 Chế độ Tối"
 
         st.markdown("""
             <style>
