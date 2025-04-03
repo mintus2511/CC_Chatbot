@@ -13,7 +13,7 @@ st.set_page_config(page_title="Call Center Chatbot", layout="wide")
 
 with st.sidebar:
     st.markdown("### 🌓 Chọn chế độ sáng/tối")
-    is_dark = st.toggle("Bấm để that đổi chế độ của giao diện", key="dark_mode_toggle")
+    is_dark = st.toggle("Bấm để thay đổi chế độ của giao diện", key="dark_mode_toggle")
 
 # === Giao diện Light/Dark + Font chuyên nghiệp ===
 if not is_dark:
