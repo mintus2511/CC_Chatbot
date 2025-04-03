@@ -7,92 +7,94 @@ import os
 from streamlit_searchbox import st_searchbox
 from datetime import datetime, timedelta
 
+def apply_theme():
+    import streamlit as st
+
+    # Khởi tạo session_state nếu chưa có
+    if "dark_mode" not in st.session_state:
+        st.session_state["dark_mode"] = False  # Mặc định là Light Mode
+
+    with st.sidebar:
+        st.markdown("### 🌓 Giao diện")
+        icon = "🌞" if st.session_state["dark_mode"] else "🌚"
+        if st.button(f"{icon} Chuyển giao diện"):
+            st.session_state["dark_mode"] = not st.session_state["dark_mode"]
+            st.rerun()
+
+    # === Áp dụng CSS theo chế độ ===
+    if not st.session_state["dark_mode"]:
+        st.markdown("""
+            <style>
+            @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Roboto:wght@400;500&display=swap');
+
+            html, body, .stApp, [class*="css"] {
+                font-family: 'Roboto', sans-serif !important;
+                background-color: #ffffff !important;
+                color: #222 !important;
+            }
+
+            .stApp h1, .stApp h2, .stApp h3 {
+                font-family: 'Merriweather', serif !important;
+                color: #111 !important;
+                font-weight: 700;
+            }
+
+            section[data-testid="stSidebar"], section[data-testid="stSidebar"] * {
+                background-color: #f5f5f5 !important;
+                color: #222 !important;
+            }
+
+            .element-container:has(.stChatMessage) {
+                background-color: #ffffff !important;
+                color: #222 !important;
+            }
+
+            .stApp .css-uc1cuc, .stApp .stMarkdown small {
+                font-size: 13px !important;
+                font-style: italic;
+                color: #666;
+            }
+            </style>
+        """, unsafe_allow_html=True)
+    else:
+        st.markdown("""
+            <style>
+            @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Roboto:wght@400;500&display=swap');
+
+            html, body, .stApp, [class*="css"] {
+                font-family: 'Roboto', sans-serif !important;
+                background-color: #121212 !important;
+                color: #eee !important;
+            }
+
+            .stApp h1, .stApp h2, .stApp h3 {
+                font-family: 'Merriweather', serif !important;
+                color: #fafafa !important;
+                font-weight: 700;
+            }
+
+            section[data-testid="stSidebar"], section[data-testid="stSidebar"] * {
+                background-color: #1f1f1f !important;
+                color: #eee !important;
+            }
+
+            .element-container:has(.stChatMessage) {
+                background-color: #1a1a1a !important;
+                color: #ddd !important;
+            }
+
+            .stApp .css-uc1cuc, .stApp .stMarkdown small {
+                font-size: 13px !important;
+                font-style: italic;
+                color: #aaa;
+            }
+            </style>
+        """, unsafe_allow_html=True)
+
+
 # === App Title ===
 st.set_page_config(page_title="Call Center Chatbot", layout="wide")
-# === Toggle Giao diện & Giao diện CSS ===
-
-with st.sidebar:
-    st.markdown("### 🌓 Chọn chế độ sáng/tối")
-    is_dark = st.toggle("Bấm để thay đổi chế độ của giao diện", key="dark_mode_toggle")
-
-# === Giao diện Light/Dark + Font chuyên nghiệp ===
-if not is_dark:
-    st.markdown("""
-        <style>
-        @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Roboto:wght@400;500&display=swap');
-
-        html, body, .stApp, [class*="css"] {
-            font-family: 'Roboto', sans-serif !important;
-            background-color: #ffffff !important;
-            color: #222 !important;
-        }
-
-        .stApp h1, .stApp h2, .stApp h3 {
-            font-family: 'Merriweather', serif !important;
-            font-weight: 700;
-            color: #111 !important;
-        }
-
-        .stApp p, .stApp label, .stApp span, .stApp div, .stApp button {
-            font-family: 'Roboto', sans-serif !important;
-        }
-
-        section[data-testid="stSidebar"], section[data-testid="stSidebar"] * {
-            background-color: #f5f5f5 !important;
-            color: #222 !important;
-        }
-
-        .element-container:has(.stChatMessage) {
-            background-color: #ffffff !important;
-            color: #222 !important;
-        }
-
-        .stApp .css-uc1cuc, .stApp .stMarkdown small {
-            font-size: 13px !important;
-            font-style: italic;
-            color: #666;
-        }
-        </style>
-    """, unsafe_allow_html=True)
-else:
-    st.markdown("""
-        <style>
-        @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Roboto:wght@400;500&display=swap');
-
-        html, body, .stApp, [class*="css"] {
-            font-family: 'Roboto', sans-serif !important;
-            background-color: #121212 !important;
-            color: #eee !important;
-        }
-
-        .stApp h1, .stApp h2, .stApp h3 {
-            font-family: 'Merriweather', serif !important;
-            font-weight: 700;
-            color: #fafafa !important;
-        }
-
-        .stApp p, .stApp label, .stApp span, .stApp div, .stApp button {
-            font-family: 'Roboto', sans-serif !important;
-            color: #ddd !important;
-        }
-
-        section[data-testid="stSidebar"], section[data-testid="stSidebar"] * {
-            background-color: #1f1f1f !important;
-            color: #eee !important;
-        }
-
-        .element-container:has(.stChatMessage) {
-            background-color: #1a1a1a !important;
-            color: #ddd !important;
-        }
-
-        .stApp .css-uc1cuc, .stApp .stMarkdown small {
-            font-size: 13px !important;
-            font-style: italic;
-            color: #aaa;
-        }
-        </style>
-    """, unsafe_allow_html=True)
+apply_theme()
 st.title("📞 Call Center Chatbot")
 
 # === Constants ===
