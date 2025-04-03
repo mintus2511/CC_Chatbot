@@ -11,34 +11,47 @@ from datetime import datetime, timedelta
 st.set_page_config(page_title="Call Center Chatbot", layout="wide")
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Roboto:wght@400;500&display=swap');
 
-    /* Toàn bộ giao diện */
+    /* Toàn bộ app dùng Roboto làm font mặc định */
     html, body, .stApp, [class*="css"] {
-        font-family: 'Libre Baskerville', serif !important;
+        font-family: 'Roboto', sans-serif !important;
         font-size: 16px;
         color: #222;
         line-height: 1.6;
     }
 
-    /* Đảm bảo tất cả text đều nhận font */
-    .stApp h1, .stApp h2, .stApp h3,
+    /* Tiêu đề dùng Merriweather */
+    .stApp h1, .stApp h2, .stApp h3 {
+        font-family: 'Merriweather', serif !important;
+        font-weight: 700;
+        color: #111;
+    }
+
+    /* Các thành phần có text vẫn dùng Roboto */
     .stApp p, .stApp label, .stApp span, .stApp div, .stApp button {
-        font-family: 'Libre Baskerville', serif !important;
+        font-family: 'Roboto', sans-serif !important;
     }
 
     /* Sidebar */
     section[data-testid="stSidebar"] * {
-        font-family: 'Libre Baskerville', serif !important;
+        font-family: 'Roboto', sans-serif !important;
     }
 
-    /* Chatbot */
+    /* Chatbot cũng dùng Roboto để dễ đọc */
     .element-container:has(.stChatMessage) {
-        font-family: 'Libre Baskerville', serif !important;
+        font-family: 'Roboto', sans-serif !important;
         font-size: 16px;
     }
 
-    /* Responsive scaling */
+    /* Caption / ghi chú nhỏ */
+    .stApp .css-uc1cuc, .stApp .stMarkdown small {
+        font-size: 13px !important;
+        font-style: italic;
+        color: #666;
+    }
+
+    /* Responsive font-size */
     @media (max-width: 768px) {
         html, body {
             font-size: 15px;
@@ -55,13 +68,6 @@ st.markdown("""
         .stApp h1 { font-size: 28px !important; }
         .stApp h2 { font-size: 22px !important; }
         .stApp h3 { font-size: 18px !important; }
-    }
-
-    /* Caption */
-    .stApp .css-uc1cuc, .stApp .stMarkdown small {
-        font-size: 13px !important;
-        font-style: italic;
-        color: #555;
     }
     </style>
 """, unsafe_allow_html=True)
