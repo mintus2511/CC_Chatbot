@@ -22,11 +22,12 @@ def apply_theme(user_id: str):
 
     is_dark = all_prefs[user_id]["dark_mode"]
 
-    # === Sidebar: Nút chuyển giao diện ===
+    # === Sidebar: nút chuyển giao diện ===
     with st.sidebar:
         st.markdown("### 🌓 Giao diện")
+        label = "🌞 Chuyển sang Sáng" if is_dark else "🌚 Chuyển sang Tối"
 
-        button_label = "🌞 Chuyển sang Sáng" if is_dark else "🌚 Chuyển sang Tối"
+        # Button hover style
         st.markdown("""
             <style>
             div[data-testid="stSidebar"] button:hover {
@@ -37,14 +38,14 @@ def apply_theme(user_id: str):
             </style>
         """, unsafe_allow_html=True)
 
-        if st.button(button_label):
+        if st.button(label):
             is_dark = not is_dark
             all_prefs[user_id]["dark_mode"] = is_dark
             with open(THEME_FILE, "w") as f:
                 json.dump(all_prefs, f)
             st.rerun()
 
-    # === CSS CHO TOÀN BỘ APP ===
+    # === CSS toàn app ===
     if not is_dark:
         # LIGHT MODE
         st.markdown("""
@@ -57,33 +58,39 @@ def apply_theme(user_id: str):
                 color: #222 !important;
             }
 
-            .stApp h1, .stApp h2, .stApp h3 {
+            .stApp h1, h2, h3 {
                 font-family: 'Merriweather', serif !important;
-                color: #111 !important;
                 font-weight: 700;
+                color: #111 !important;
             }
 
             section[data-testid="stSidebar"] {
-                background: linear-gradient(180deg, #242B68 0%, #1b1f4a 100%) !important;
-                color: white !important;
+                background-color: #ffffff !important;
+                color: #222 !important;
             }
 
             section[data-testid="stSidebar"] * {
-                color: white !important;
+                color: #222 !important;
             }
 
-            /* Khung chat message */
-            .element-container:has(.stChatMessage) {
-                background-color: transparent !important;
-                margin-bottom: 10px;
-            }
-
+            /* Khung chat */
             div[data-testid="stChatMessageContent"] {
                 background-color: #f5f5f5 !important;
                 color: #222 !important;
                 padding: 12px;
                 border-radius: 8px;
                 border: 1px solid #ddd;
+            }
+
+            .element-container:has(.stChatMessage) {
+                background-color: transparent !important;
+                margin-bottom: 10px;
+            }
+
+            /* Markdown bên trong */
+            .stMarkdown div, .stMarkdown section, .stMarkdown p {
+                background-color: transparent !important;
+                color: #222 !important;
             }
 
             /* Button */
@@ -111,10 +118,10 @@ def apply_theme(user_id: str):
                 color: #eee !important;
             }
 
-            .stApp h1, .stApp h2, .stApp h3 {
+            .stApp h1, h2, h3 {
                 font-family: 'Merriweather', serif !important;
-                color: #fafafa !important;
                 font-weight: 700;
+                color: #fafafa !important;
             }
 
             section[data-testid="stSidebar"] {
@@ -126,18 +133,23 @@ def apply_theme(user_id: str):
                 color: white !important;
             }
 
-            /* Khung chat message */
-            .element-container:has(.stChatMessage) {
-                background-color: transparent !important;
-                margin-bottom: 10px;
-            }
-
+            /* Khung chat */
             div[data-testid="stChatMessageContent"] {
                 background-color: #2a2a2a !important;
                 color: #eee !important;
                 padding: 12px;
                 border-radius: 8px;
                 border: 1px solid #444;
+            }
+
+            .element-container:has(.stChatMessage) {
+                background-color: transparent !important;
+                margin-bottom: 10px;
+            }
+
+            .stMarkdown div, .stMarkdown section, .stMarkdown p {
+                background-color: transparent !important;
+                color: #eee !important;
             }
 
             /* Button */
