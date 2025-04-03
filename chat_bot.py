@@ -7,27 +7,51 @@ import os
 from streamlit_searchbox import st_searchbox
 from datetime import datetime, timedelta
 
-def apply_theme():
-    import streamlit as st
+def apply_theme(user_id: str):
+    THEME_FILE = "theme_prefs.json"
 
-    # Khởi tạo session_state nếu chưa có
-    if "dark_mode" not in st.session_state:
-        st.session_state["dark_mode"] = False  # Mặc định là Light Mode
+    # Load hoặc khởi tạo trạng thái theme
+    if os.path.exists(THEME_FILE):
+        with open(THEME_FILE, "r") as f:
+            all_prefs = json.load(f)
+    else:
+        all_prefs = {}
 
+    if user_id not in all_prefs:
+        all_prefs[user_id] = {"dark_mode": False}
+
+    is_dark = all_prefs[user_id]["dark_mode"]
+
+    # === Sidebar: nút chuyển giao diện có hover ===
     with st.sidebar:
         st.markdown("### 🌓 Giao diện")
-        icon = "🌞" if st.session_state["dark_mode"] else "🌚"
-        if st.button(f"{icon} Chuyển giao diện"):
-            st.session_state["dark_mode"] = not st.session_state["dark_mode"]
+
+        button_label = "🌞 Chuyển sang Sáng" if is_dark else "🌚 Chuyển sang Tối"
+        st.markdown("""
+            <style>
+            div[data-testid="stSidebar"] button:hover {
+                background-color: #FBAD22 !important;
+                color: black !important;
+                border: 1px solid white;
+            }
+            </style>
+        """, unsafe_allow_html=True)
+
+        if st.button(button_label):
+            is_dark = not is_dark
+            all_prefs[user_id]["dark_mode"] = is_dark
+            with open(THEME_FILE, "w") as f:
+                json.dump(all_prefs, f)
             st.rerun()
 
-    # === Áp dụng CSS theo chế độ ===
-    if not st.session_state["dark_mode"]:
+    # === CSS cho toàn bộ app ===
+    if not is_dark:
+        # LIGHT MODE
         st.markdown("""
             <style>
             @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Roboto:wght@400;500&display=swap');
 
-            html, body, .stApp, [class*="css"] {
+            html, body, .stApp {
                 font-family: 'Roboto', sans-serif !important;
                 background-color: #ffffff !important;
                 color: #222 !important;
@@ -39,29 +63,31 @@ def apply_theme():
                 font-weight: 700;
             }
 
-            section[data-testid="stSidebar"], section[data-testid="stSidebar"] * {
-                background-color: #f5f5f5 !important;
-                color: #222 !important;
+            section[data-testid="stSidebar"] {
+                background: linear-gradient(180deg, #242B68 0%, #1b1f4a 100%) !important;
+                color: white !important;
+            }
+
+            section[data-testid="stSidebar"] * {
+                color: white !important;
             }
 
             .element-container:has(.stChatMessage) {
-                background-color: #ffffff !important;
+                background-color: #f9f9f9 !important;
                 color: #222 !important;
-            }
-
-            .stApp .css-uc1cuc, .stApp .stMarkdown small {
-                font-size: 13px !important;
-                font-style: italic;
-                color: #666;
+                padding: 12px;
+                border-radius: 8px;
+                margin-bottom: 10px;
             }
             </style>
         """, unsafe_allow_html=True)
     else:
+        # DARK MODE
         st.markdown("""
             <style>
             @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Roboto:wght@400;500&display=swap');
 
-            html, body, .stApp, [class*="css"] {
+            html, body, .stApp {
                 font-family: 'Roboto', sans-serif !important;
                 background-color: #121212 !important;
                 color: #eee !important;
@@ -73,28 +99,28 @@ def apply_theme():
                 font-weight: 700;
             }
 
-            section[data-testid="stSidebar"], section[data-testid="stSidebar"] * {
-                background-color: #1f1f1f !important;
-                color: #eee !important;
+            section[data-testid="stSidebar"] {
+                background: linear-gradient(180deg, #242B68 0%, #1b1f4a 100%) !important;
+                color: white !important;
+            }
+
+            section[data-testid="stSidebar"] * {
+                color: white !important;
             }
 
             .element-container:has(.stChatMessage) {
-                background-color: #1a1a1a !important;
-                color: #ddd !important;
-            }
-
-            .stApp .css-uc1cuc, .stApp .stMarkdown small {
-                font-size: 13px !important;
-                font-style: italic;
-                color: #aaa;
+                background-color: #2a2a2a !important;
+                color: #eee !important;
+                padding: 12px;
+                border-radius: 8px;
+                margin-bottom: 10px;
             }
             </style>
         """, unsafe_allow_html=True)
 
-
 # === App Title ===
 st.set_page_config(page_title="Call Center Chatbot", layout="wide")
-apply_theme()
+apply_theme(user_id=st.session_state["user_id"])
 st.title("📞 Call Center Chatbot")
 
 # === Constants ===
