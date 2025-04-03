@@ -13,14 +13,32 @@ st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville&display=swap');
 
-    html, body, [class*="css"] {
-        font-family: 'Libre Baskerville', serif;
+    /* Toàn bộ giao diện */
+    html, body, .stApp, [class*="css"] {
+        font-family: 'Libre Baskerville', serif !important;
         font-size: 16px;
-        line-height: 1.6;
         color: #222;
+        line-height: 1.6;
     }
 
-    /* Responsive fonts */
+    /* Đảm bảo tất cả text đều nhận font */
+    .stApp h1, .stApp h2, .stApp h3,
+    .stApp p, .stApp label, .stApp span, .stApp div, .stApp button {
+        font-family: 'Libre Baskerville', serif !important;
+    }
+
+    /* Sidebar */
+    section[data-testid="stSidebar"] * {
+        font-family: 'Libre Baskerville', serif !important;
+    }
+
+    /* Chatbot */
+    .element-container:has(.stChatMessage) {
+        font-family: 'Libre Baskerville', serif !important;
+        font-size: 16px;
+    }
+
+    /* Responsive scaling */
     @media (max-width: 768px) {
         html, body {
             font-size: 15px;
@@ -39,35 +57,7 @@ st.markdown("""
         .stApp h3 { font-size: 18px !important; }
     }
 
-    /* Tiêu đề */
-    .stApp h1 {
-        font-size: 40px !important;
-        font-weight: bold;
-        margin-bottom: 1rem;
-    }
-
-    .stApp h2 {
-        font-size: 32px !important;
-        font-weight: bold;
-    }
-
-    .stApp h3 {
-        font-size: 24px !important;
-    }
-
-    /* Chatbot dùng cùng font nhưng có thể điều chỉnh riêng nếu muốn */
-    .element-container:has(.stChatMessage) {
-        font-family: 'Libre Baskerville', serif !important;
-        font-size: 16px;
-    }
-
-    /* Sidebar */
-    section[data-testid="stSidebar"] {
-        font-family: 'Libre Baskerville', serif !important;
-        font-size: 16px;
-    }
-
-    /* Caption / chú thích */
+    /* Caption */
     .stApp .css-uc1cuc, .stApp .stMarkdown small {
         font-size: 13px !important;
         font-style: italic;
