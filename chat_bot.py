@@ -9,68 +9,90 @@ from datetime import datetime, timedelta
 
 # === App Title ===
 st.set_page_config(page_title="Call Center Chatbot", layout="wide")
-st.markdown("""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Roboto:wght@400;500&display=swap');
+# === Toggle Giao diện & Giao diện CSS ===
 
-    /* Toàn bộ app dùng Roboto làm font mặc định */
-    html, body, .stApp, [class*="css"] {
-        font-family: 'Roboto', sans-serif !important;
-        font-size: 16px;
-        color: #222;
-        line-height: 1.6;
-    }
+with st.sidebar:
+    st.markdown("### 🌓 Giao diện")
+    is_dark = st.toggle("Bật chế độ tối", key="dark_mode_toggle")
 
-    /* Tiêu đề dùng Merriweather */
-    .stApp h1, .stApp h2, .stApp h3 {
-        font-family: 'Merriweather', serif !important;
-        font-weight: 700;
-        color: #111;
-    }
+# === Giao diện Light/Dark + Font chuyên nghiệp ===
+if not is_dark:
+    st.markdown("""
+        <style>
+        @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Roboto:wght@400;500&display=swap');
 
-    /* Các thành phần có text vẫn dùng Roboto */
-    .stApp p, .stApp label, .stApp span, .stApp div, .stApp button {
-        font-family: 'Roboto', sans-serif !important;
-    }
-
-    /* Sidebar */
-    section[data-testid="stSidebar"] * {
-        font-family: 'Roboto', sans-serif !important;
-    }
-
-    /* Chatbot cũng dùng Roboto để dễ đọc */
-    .element-container:has(.stChatMessage) {
-        font-family: 'Roboto', sans-serif !important;
-        font-size: 16px;
-    }
-
-    /* Caption / ghi chú nhỏ */
-    .stApp .css-uc1cuc, .stApp .stMarkdown small {
-        font-size: 13px !important;
-        font-style: italic;
-        color: #666;
-    }
-
-    /* Responsive font-size */
-    @media (max-width: 768px) {
-        html, body {
-            font-size: 15px;
+        html, body, .stApp, [class*="css"] {
+            font-family: 'Roboto', sans-serif !important;
+            background-color: #ffffff !important;
+            color: #222 !important;
         }
-        .stApp h1 { font-size: 32px !important; }
-        .stApp h2 { font-size: 26px !important; }
-        .stApp h3 { font-size: 20px !important; }
-    }
 
-    @media (max-width: 480px) {
-        html, body {
-            font-size: 14px;
+        .stApp h1, .stApp h2, .stApp h3 {
+            font-family: 'Merriweather', serif !important;
+            font-weight: 700;
+            color: #111 !important;
         }
-        .stApp h1 { font-size: 28px !important; }
-        .stApp h2 { font-size: 22px !important; }
-        .stApp h3 { font-size: 18px !important; }
-    }
-    </style>
-""", unsafe_allow_html=True)
+
+        .stApp p, .stApp label, .stApp span, .stApp div, .stApp button {
+            font-family: 'Roboto', sans-serif !important;
+        }
+
+        section[data-testid="stSidebar"], section[data-testid="stSidebar"] * {
+            background-color: #f5f5f5 !important;
+            color: #222 !important;
+        }
+
+        .element-container:has(.stChatMessage) {
+            background-color: #ffffff !important;
+            color: #222 !important;
+        }
+
+        .stApp .css-uc1cuc, .stApp .stMarkdown small {
+            font-size: 13px !important;
+            font-style: italic;
+            color: #666;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+else:
+    st.markdown("""
+        <style>
+        @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Roboto:wght@400;500&display=swap');
+
+        html, body, .stApp, [class*="css"] {
+            font-family: 'Roboto', sans-serif !important;
+            background-color: #121212 !important;
+            color: #eee !important;
+        }
+
+        .stApp h1, .stApp h2, .stApp h3 {
+            font-family: 'Merriweather', serif !important;
+            font-weight: 700;
+            color: #fafafa !important;
+        }
+
+        .stApp p, .stApp label, .stApp span, .stApp div, .stApp button {
+            font-family: 'Roboto', sans-serif !important;
+            color: #ddd !important;
+        }
+
+        section[data-testid="stSidebar"], section[data-testid="stSidebar"] * {
+            background-color: #1f1f1f !important;
+            color: #eee !important;
+        }
+
+        .element-container:has(.stChatMessage) {
+            background-color: #1a1a1a !important;
+            color: #ddd !important;
+        }
+
+        .stApp .css-uc1cuc, .stApp .stMarkdown small {
+            font-size: 13px !important;
+            font-style: italic;
+            color: #aaa;
+        }
+        </style>
+    """, unsafe_allow_html=True)
 st.title("📞 Call Center Chatbot")
 
 # === Constants ===
@@ -93,6 +115,7 @@ with st.sidebar:
         new_id = f"user_{uuid.uuid4().hex[:8]}"
         st.query_params["uid"] = new_id
         st.rerun()
+
 
 # === Load pinned keywords from file ===
 def load_pinned_keywords():
