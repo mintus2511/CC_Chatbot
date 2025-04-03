@@ -385,8 +385,9 @@ if "uploaded_data" in st.session_state:
     data = data.drop_duplicates(subset="description", keep="first")
 
 def set_selected_keyword(keyword):
-    st.session_state["selected_keyword"] = keyword
-    st.session_state["trigger_display"] = True
+    if keyword != st.session_state.get("selected_keyword"):
+        st.session_state["selected_keyword"] = keyword
+        st.session_state["trigger_display"] = True
 
 if not data.empty:
     all_keywords = sorted(data["key word"].dropna().astype(str).unique())
