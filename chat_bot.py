@@ -380,7 +380,6 @@ if "uploaded_data" in st.session_state:
 
 def set_selected_keyword(keyword):
     st.session_state["selected_keyword"] = keyword
-    st.rerun()
     
 from theme import apply_theme
 apply_theme(user_id=st.session_state["user_id"])
@@ -423,7 +422,6 @@ if not data.empty:
                     cols = st.columns([0.8, 0.2])
                     if cols[0].button(f"🔑 {kw}", key=f"kw-{topic}-{kw}"):
                         set_selected_keyword(kw)
-                        st.rerun()
                     pin_icon = "📌" if kw in st.session_state["pinned_keywords"] else "☆"
                     if cols[1].button(pin_icon, key=f"pin-{topic}-{kw}"):
                         if kw in st.session_state["pinned_keywords"]:
