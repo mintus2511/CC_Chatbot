@@ -22,7 +22,7 @@ def apply_theme(user_id: str):
 
     is_dark = all_prefs[user_id]["dark_mode"]
 
-    # === Sidebar: nút chuyển giao diện có hover ===
+    # === Sidebar: Nút chuyển giao diện ===
     with st.sidebar:
         st.markdown("### 🌓 Giao diện")
 
@@ -44,7 +44,7 @@ def apply_theme(user_id: str):
                 json.dump(all_prefs, f)
             st.rerun()
 
-    # === CSS cho toàn bộ app ===
+    # === CSS CHO TOÀN BỘ APP ===
     if not is_dark:
         # LIGHT MODE
         st.markdown("""
@@ -72,12 +72,30 @@ def apply_theme(user_id: str):
                 color: white !important;
             }
 
+            /* Khung chat message */
             .element-container:has(.stChatMessage) {
-                background-color: #f9f9f9 !important;
+                background-color: transparent !important;
+                margin-bottom: 10px;
+            }
+
+            div[data-testid="stChatMessageContent"] {
+                background-color: #f5f5f5 !important;
                 color: #222 !important;
                 padding: 12px;
                 border-radius: 8px;
-                margin-bottom: 10px;
+                border: 1px solid #ddd;
+            }
+
+            /* Button */
+            button {
+                background-color: #e1e1de !important;
+                color: black !important;
+                border: 1px solid #ccc !important;
+            }
+
+            button:hover {
+                background-color: #FBAD22 !important;
+                color: black !important;
             }
             </style>
         """, unsafe_allow_html=True)
@@ -108,12 +126,30 @@ def apply_theme(user_id: str):
                 color: white !important;
             }
 
+            /* Khung chat message */
             .element-container:has(.stChatMessage) {
+                background-color: transparent !important;
+                margin-bottom: 10px;
+            }
+
+            div[data-testid="stChatMessageContent"] {
                 background-color: #2a2a2a !important;
                 color: #eee !important;
                 padding: 12px;
                 border-radius: 8px;
-                margin-bottom: 10px;
+                border: 1px solid #444;
+            }
+
+            /* Button */
+            button {
+                background-color: #333 !important;
+                color: white !important;
+                border: 1px solid #555 !important;
+            }
+
+            button:hover {
+                background-color: #FBAD22 !important;
+                color: black !important;
             }
             </style>
         """, unsafe_allow_html=True)
