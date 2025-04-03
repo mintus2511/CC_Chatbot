@@ -123,7 +123,7 @@ if "uploaded_data" in st.session_state:
     data = pd.concat([data, st.session_state["uploaded_data"]], ignore_index=True)
     data = data.drop_duplicates(subset="key word", keep="last").drop_duplicates(subset="description", keep="first")
 
-# === Sidebar layout ===
+# === Sidebar layout (loại bỏ tìm kiếm nhanh) ===
 with st.sidebar:
     st.markdown(f"👤 **Xin chào:** `{user_id}`")
     st.markdown("---")
@@ -158,20 +158,20 @@ with st.sidebar:
                             st.session_state["trigger_display"] = True
                             st.rerun()
 
-    st.markdown("---")
-    st.markdown("### 🔍 Tìm kiếm nhanh")
-    def search_fn(user_input):
-        return [kw for kw in all_keywords if user_input.lower() in kw.lower()]
-    selected_keyword = st_searchbox(
-        search_fn,
-        key="keyword_search",
-        label="Gõ từ khóa...",
-        placeholder="Ví dụ: học phí, học bổng..."
-    )
-    if selected_keyword:
-        st.session_state["selected_keyword"] = selected_keyword
-        st.session_state["trigger_display"] = True
-        st.rerun()
+# === Tìm kiếm nhanh: chỉ hiển thị trong nội dung chính ===
+def search_fn(user_input):
+    return [kw for kw in all_keywords if user_input.lower() in kw.lower()]
+
+selected_keyword = st_searchbox(
+    search_fn,
+    key="keyword_search_main",
+    label="🔍 Gõ từ khóa để tìm nhanh",
+    placeholder="Ví dụ: học phí, học bổng..."
+)
+if selected_keyword:
+    st.session_state["selected_keyword"] = selected_keyword
+    st.session_state["trigger_display"] = True
+    st.rerun()
 
 # === Hiển thị nội dung ===
 def display_bot_response(keyword, description, topic):
