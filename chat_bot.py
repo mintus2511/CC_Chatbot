@@ -69,8 +69,8 @@ if "multi_filter_keywords" not in st.session_state:
     st.session_state["multi_filter_keywords"] = []
 if "selected_topics" not in st.session_state:
     st.session_state["selected_topics"] = []
-#if "trigger_display" not in st.session_state:
-    #st.session_state["trigger_display"] = False
+if "trigger_display" not in st.session_state:
+    st.session_state["trigger_display"] = False
 if "is_authorized" not in st.session_state:
     st.session_state["is_authorized"] = False 
 
@@ -135,9 +135,9 @@ else:
     all_data_combined = pd.DataFrame(columns=["key word", "description", "topic"])
 
 def display_bot_response(keyword, description, topic):
-    st.chat_message("user").markdown(f"🔍 **Từ khóa:** `{keyword}`")
+    st.chat_message("user").markdown(f"🔍 **Từ khóa:** {keyword}")
     st.chat_message("assistant").markdown(
-        f"**📂 Chủ đề:** `{topic}`\n\n{description}"
+        f"**📂 Chủ đề:** {topic}\n\n{description}"
     )
     st.session_state["chat_history"].append({
         "keyword": keyword,
@@ -209,7 +209,7 @@ if st.session_state["is_authorized"]:
                             merged_df['topic'] = merged_df['topic'].fillna('Tải lên')
                         else:
                             default_topic = os.path.splitext(uploaded_file.name)[0]
-                            custom_topic = st.text_input(f"📝 Đặt tên cho topic mới cho file `{uploaded_file.name}`:", value=default_topic, key=f"topic_name_{uploaded_file.name}")
+                            custom_topic = st.text_input(f"📝 Đặt tên cho topic mới cho file {uploaded_file.name}:", value=default_topic, key=f"topic_name_{uploaded_file.name}")
                             update_df['topic'] = custom_topic
                             merged_df = update_df
 
@@ -224,11 +224,11 @@ if st.session_state["is_authorized"]:
 
                         # Lưu vào file
                         st.session_state["uploaded_data"].to_csv(UPLOADED_FILE, index=False)
-                        st.success(f"✅ Đã xử lý và lưu file: `{uploaded_file.name}`")
+                        st.success(f"✅ Đã xử lý và lưu file: {uploaded_file.name}")
                     else:
-                        st.error(f"❌ File `{uploaded_file.name}` không đúng định dạng. Cần có cột 'key word' và 'description'.")
+                        st.error(f"❌ File {uploaded_file.name} không đúng định dạng. Cần có cột 'key word' và 'description'.")
                 except Exception as e:
-                    st.error(f"❌ Lỗi khi đọc file `{uploaded_file.name}`: {e}")
+                    st.error(f"❌ Lỗi khi đọc file {uploaded_file.name}: {e}")
     elif co_action == "➕ Thêm từ khóa":
         st.markdown("---")
         st.subheader("🧾 Nhập từ khóa mới")
@@ -386,8 +386,7 @@ if "uploaded_data" in st.session_state:
 
 def set_selected_keyword(keyword):
     st.session_state["selected_keyword"] = keyword
-    st.rerun()
-        #st.session_state["trigger_display"] = True
+    st.session_state["trigger_display"] = True
 
 if not data.empty:
     all_keywords = sorted(data["key word"].dropna().astype(str).unique())
@@ -427,6 +426,7 @@ if not data.empty:
                     cols = st.columns([0.8, 0.2])
                     if cols[0].button(f"🔑 {kw}", key=f"kw-{topic}-{kw}"):
                         set_selected_keyword(kw)
+                        st.rerun()
                     pin_icon = "📌" if kw in st.session_state["pinned_keywords"] else "☆"
                     if cols[1].button(pin_icon, key=f"pin-{topic}-{kw}"):
                         if kw in st.session_state["pinned_keywords"]:
@@ -447,14 +447,14 @@ if not data.empty:
     if selected_keyword:
         set_selected_keyword(selected_keyword)
 
-
     if st.session_state["multi_filter_keywords"]:
         st.subheader("📋 Kết quả theo nhiều từ khóa:")
         for kw in st.session_state["multi_filter_keywords"]:
             matches = data[data["key word"].str.lower() == kw.lower()]
             for _, row in matches.iterrows():
                 display_bot_response(kw, row["description"], row["topic"])
-    elif st.session_state["selected_keyword"]:
+    elif st.session_state["selected_keyword"] and st.session_state["trigger_display"]:
+        st.session_state["trigger_display"] = False
         kw = st.session_state["selected_keyword"]
         matches = data[data["key word"].str.lower() == kw.lower()]
         if not matches.empty:
@@ -473,5 +473,5 @@ if st.session_state["chat_history"]:
             st.session_state["chat_history"] = []
             st.rerun()
         for msg in st.session_state["chat_history"]:
-            st.chat_message("user").markdown(f"🔍 **Từ khóa:** `{msg['keyword']}`")
-            st.chat_message("assistant").markdown(f"**📂 Chủ đề:** `{msg['topic']}`\\n\\n{msg['description']}")
+            st.chat_message("user").markdown(f"🔍 **Từ khóa:** {msg['keyword']}")
+            st.chat_message("assistant").markdown(f"**📂 Chủ đề:** {msg['topic']}\\n\\n{msg['description']}")
