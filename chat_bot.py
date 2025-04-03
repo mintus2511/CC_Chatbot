@@ -402,8 +402,36 @@ def load_csvs(csv_files):
     combined = combined.drop_duplicates(subset="description", keep="first")
     return combined
 
-csv_files = get_csv_file_links()
-data = load_csvs(csv_files)
+if "uploaded_data" in st.session_state:
+    data = st.session_state["uploaded_data"]
+    data = data.drop_duplicates(subset="key word", keep="last")
+    data = data.drop_duplicates(subset="description", keep="first")
+elif os.path.exists(UPLOADED_FILE):
+    try:
+        uploaded_df = pd.read_csv(UPLOADED_FILE)
+        uploaded_df.columns = uploaded_df.columns.str.lower().str.strip()
+        if {"key word", "description", "topic"}.issubset(uploaded_df.columns):
+            st.session_state["uploaded_data"] = uploaded_df
+            data = uploaded_df
+            data = data.drop_duplicates(subset="key word", keep="last")
+            data = data.drop_duplicates(subset="description", keep="first")
+        else:
+            st.warning("⚠️ File local không đúng định dạng.")
+            data = pd.DataFrame()
+    except Exception as e:
+        st.warning(f"⚠️ Lỗi đọc file local: {e}")
+        data = pd.DataFrame()
+else:
+    try:
+        csv_files = get_csv_file_links()
+        github_df = load_csvs(csv_files)
+        if not github_df.empty:
+            data = github_df
+        else:
+            data = pd.DataFrame()
+    except Exception as e:
+        st.warning(f"⚠️ Không thể tải từ GitHub: {e}")
+        data = pd.DataFrame()
 
 # Nếu có dữ liệu upload từ co-lead, thêm vào
 if "uploaded_data" in st.session_state:
