@@ -426,9 +426,7 @@ if not data.empty:
                 for kw in topic_keywords:
                     cols = st.columns([0.8, 0.2])
                     if cols[0].button(f"🔑 {kw}", key=f"kw-{topic}-{kw}"):
-                        st.session_state["selected_keyword"] = kw
-                        st.session_state["trigger_display"] = True
-                        st.rerun()
+                        set_selected_keyword(kw)
                     pin_icon = "📌" if kw in st.session_state["pinned_keywords"] else "☆"
                     if cols[1].button(pin_icon, key=f"pin-{topic}-{kw}"):
                         if kw in st.session_state["pinned_keywords"]:
@@ -446,10 +444,9 @@ if not data.empty:
         label="🔍 Gõ từ khóa để tìm nhanh",
         placeholder="Ví dụ: học phí, học bổng..."
     )
-    if selected_keyword and selected_keyword != st.session_state.get("selected_keyword"):
-        st.session_state["selected_keyword"] = selected_keyword
-        st.session_state["trigger_display"] = True
-        st.rerun()
+    if selected_keyword:
+        set_selected_keyword(selected_keyword)
+
 
     if st.session_state["multi_filter_keywords"]:
         st.subheader("📋 Kết quả theo nhiều từ khóa:")
