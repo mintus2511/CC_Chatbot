@@ -118,10 +118,42 @@ def load_csvs(csv_files):
             st.warning(f"⚠️ Không thể đọc {name} từ GitHub: {e}")
     return combined
 
-csv_files = get_csv_file_links()
-github_df = load_csvs(csv_files)
-if not github_df.empty:
-    all_dataframes.append(github_df)
+# Nếu đã có dữ liệu upload từ file local thì ưu tiên dùng trước
+if "uploaded_data" in st.session_state:
+    data = st.session_state["uploaded_data"]
+    data = data.drop_duplicates(subset="key word", keep="last")
+    data = data.drop_duplicates(subset="description", keep="first")
+
+# Nếu chưa có, thì thử đọc từ file local
+elif os.path.exists(UPLOADED_FILE):
+    try:
+        uploaded_df = pd.read_csv(UPLOADED_FILE)
+        uploaded_df.columns = uploaded_df.columns.str.lower().str.strip()
+        if {"key word", "description", "topic"}.issubset(uploaded_df.columns):
+            st.session_state["uploaded_data"] = uploaded_df
+            data = uploaded_df
+            data = data.drop_duplicates(subset="key word", keep="last")
+            data = data.drop_duplicates(subset="description", keep="first")
+        else:
+            st.warning("⚠️ File local không đúng định dạng.")
+            data = pd.DataFrame()
+    except Exception as e:
+        st.warning(f"⚠️ Lỗi đọc file local: {e}")
+        data = pd.DataFrame()
+
+# Nếu không có local thì mới tải từ GitHub
+else:
+    try:
+        csv_files = get_csv_file_links()
+        github_df = load_csvs(csv_files)
+        if not github_df.empty:
+            data = github_df
+        else:
+            data = pd.DataFrame()
+    except Exception as e:
+        st.warning(f"⚠️ Không thể tải từ GitHub: {e}")
+        data = pd.DataFrame()
+
 
 # Gộp toàn bộ dữ liệu từ GitHub + file upload để có thể chỉnh sửa
 if all_dataframes:
