@@ -444,8 +444,10 @@ if not data.empty:
         label="🔍 Gõ từ khóa để tìm nhanh",
         placeholder="Ví dụ: học phí, học bổng..."
     )
-    if selected_keyword:
-        set_selected_keyword(selected_keyword)
+    if selected_keyword and selected_keyword != st.session_state.get("selected_keyword"):
+        st.session_state["selected_keyword"] = selected_keyword
+        st.session_state["trigger_display"] = True
+        st.rerun()
 
     if st.session_state["multi_filter_keywords"]:
         st.subheader("📋 Kết quả theo nhiều từ khóa:")
