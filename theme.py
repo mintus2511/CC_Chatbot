@@ -2,12 +2,11 @@ import streamlit as st
 import json
 import os
 
-# Tạo thư mục data nếu chưa có
+# Tạo thư mục nếu chưa có
 os.makedirs("data", exist_ok=True)
 THEME_FILE = os.path.join("data", "theme_prefs.json")
 
 def apply_theme(user_id: str):
-    # Load trạng thái theme từ file
     if os.path.exists(THEME_FILE):
         with open(THEME_FILE, "r") as f:
             all_prefs = json.load(f)
@@ -22,7 +21,7 @@ def apply_theme(user_id: str):
     # === Sidebar: nút chuyển chế độ ===
     with st.sidebar:
         st.markdown("### 🌓 Giao diện")
-        label = "🌞 Chế độ Sáng" if is_dark else "🌚 Chế độ Tối"
+        label = "🌞 Chuyển sang Sáng" if is_dark else "🌚 Chuyển sang Tối"
 
         st.markdown("""
             <style>
@@ -41,9 +40,8 @@ def apply_theme(user_id: str):
                 json.dump(all_prefs, f)
             st.rerun()
 
-    # === CSS theo theme ===
+    # === CSS style ===
     if not is_dark:
-        # LIGHT MODE
         st.markdown("""
             <style>
             @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Roboto:wght@400;500&display=swap');
@@ -58,7 +56,6 @@ def apply_theme(user_id: str):
             }
             section[data-testid="stSidebar"] {
                 background-color: #ffffff !important;
-                color: #222 !important;
             }
             section[data-testid="stSidebar"] * {
                 color: #222 !important;
@@ -69,10 +66,6 @@ def apply_theme(user_id: str):
                 padding: 12px;
                 border-radius: 8px;
                 border: 1px solid #ddd;
-            }
-            .element-container:has(.stChatMessage) {
-                background-color: transparent !important;
-                margin-bottom: 10px;
             }
             .stMarkdown div, .stMarkdown section, .stMarkdown p {
                 background-color: transparent !important;
@@ -90,7 +83,6 @@ def apply_theme(user_id: str):
             </style>
         """, unsafe_allow_html=True)
     else:
-        # DARK MODE – tất cả chữ màu trắng
         st.markdown("""
             <style>
             @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Roboto:wght@400;500&display=swap');
@@ -105,7 +97,6 @@ def apply_theme(user_id: str):
             }
             section[data-testid="stSidebar"] {
                 background: linear-gradient(180deg, #242B68 0%, #1b1f4a 100%) !important;
-                color: white !important;
             }
             section[data-testid="stSidebar"] * {
                 color: white !important;
@@ -116,10 +107,6 @@ def apply_theme(user_id: str):
                 padding: 12px;
                 border-radius: 8px;
                 border: 1px solid #444;
-            }
-            .element-container:has(.stChatMessage) {
-                background-color: transparent !important;
-                margin-bottom: 10px;
             }
             .stMarkdown div, .stMarkdown section, .stMarkdown p {
                 background-color: transparent !important;
@@ -135,6 +122,9 @@ def apply_theme(user_id: str):
             }
             .stMultiSelect, .stSelectbox {
                 background-color: #2a2a2a !important;
+                color: white !important;
+            }
+            .stRadio label, .stSelectbox label, .stMultiSelect label {
                 color: white !important;
             }
             button {
