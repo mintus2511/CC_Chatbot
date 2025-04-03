@@ -143,29 +143,29 @@ def display_bot_response(keyword, description, topic):
 # === Co-lead Authorization Section ===
 with st.sidebar:
     st.markdown("---")
-    with st.expander("👤 Khu vực dành cho Co-lead (ẩn mặc định)", expanded=False):
+    with st.expander("Admin Request", expanded=False):
         if not st.session_state["is_authorized"]:
-            code = st.text_input("🔑 Nhập mã truy cập Co-lead", type="password", key="colead_password")
-            if code == "COLEAD2024":
+            code = st.text_input("🔑 Vui lòng nhập password", type="password", key="colead_password")
+            if code == "ADMIN123@":
                 st.session_state["is_authorized"] = True
                 st.success("✅ Xác thực thành công. Bạn có quyền tải lên dữ liệu mới.")
                 st.rerun()
             elif code:
                 st.error("❌ Mã truy cập không đúng")
         else:
-            st.success("🔓 Bạn đang ở chế độ Co-lead")
-            if st.button("🚪 Thoát chế độ Co-lead"):
+            st.success("🔓 Bạn đang ở chế độ Admin")
+            if st.button("🚪 Thoát chế độ Admin"):
                 st.session_state["is_authorized"] = False
-                st.success("✅ Bạn đã thoát khỏi chế độ Co-lead.")
+                st.success("✅ Bạn đã thoát khỏi chế độ Admin.")
                 st.rerun()
 
 # === Upload hoặc Quản lý topic ===
 if st.session_state["is_authorized"]:
     st.markdown("---")
-    st.subheader("🛠️ Hành động dành cho Co-lead")
+    st.subheader("🛠️ Hành động dành cho Admin")
     co_action = st.radio(
     "Chọn hành động:",
-    ["📤 Tải file CSV mới", "➕ Thêm từ khóa thủ công", "📝 Chỉnh sửa topic đã upload", "🗑️ Xoá topic"],
+    ["📤 Tải file CSV mới", "➕ Thêm từ khóa", "📝 Chỉnh sửa topic/key word/description", "🗑️ Xoá topic/key word"],
         horizontal=True,
         key="co_action"
     )
@@ -224,7 +224,7 @@ if st.session_state["is_authorized"]:
                         st.error(f"❌ File `{uploaded_file.name}` không đúng định dạng. Cần có cột 'key word' và 'description'.")
                 except Exception as e:
                     st.error(f"❌ Lỗi khi đọc file `{uploaded_file.name}`: {e}")
-    elif co_action == "➕ Thêm từ khóa thủ công":
+    elif co_action == "➕ Thêm từ khóa":
         st.markdown("---")
         st.subheader("🧾 Nhập từ khóa mới")
 
@@ -270,7 +270,7 @@ if st.session_state["is_authorized"]:
                     st.error("❗ Vui lòng điền đầy đủ cả 3 cột.")
 
 
-    elif co_action in ["📝 Chỉnh sửa topic đã upload", "🗑️ Xoá topic"]:
+    elif co_action in ["📝 Chỉnh sửa topic/key word/description", "🗑️ Xoá topic/key word"]:
         st.markdown("---")
         st.subheader("🗂️ Quản lý topic và từ khóa")
         if os.path.exists(UPLOADED_FILE):
@@ -388,7 +388,7 @@ if not data.empty:
     all_topics = sorted(data["topic"].dropna().unique())
 
     with st.sidebar:
-        st.markdown("### 🧭 Lọc theo chủ đề")
+        st.markdown("### 🧭 Chọn chủ đề (có thể chọn nhiều option)")
         selected_topics = st.multiselect("Chọn chủ đề:", all_topics)
         st.session_state["selected_topics"] = selected_topics
 
@@ -406,7 +406,7 @@ if not data.empty:
                             set_selected_keyword(kw)
                             st.rerun()
 
-        st.markdown("### 🧠 Lọc nhiều từ khóa")
+        st.markdown("### 🧠 Chọn nhiều từ khóa")
         filtered_keywords = data[data["topic"].isin(selected_topics)]["key word"].unique() if selected_topics else all_keywords
         selected_multi = st.multiselect("Chọn nhiều từ khóa:", sorted(filtered_keywords))
         st.session_state["multi_filter_keywords"] = selected_multi
