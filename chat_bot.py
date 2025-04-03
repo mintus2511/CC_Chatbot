@@ -380,9 +380,20 @@ if "uploaded_data" in st.session_state:
 
 def set_selected_keyword(keyword):
     st.session_state["selected_keyword"] = keyword
+    st.session_state["multi_filter_keywords"] = []  # reset để đảm bảo hiển thị
     
 from theme import apply_theme
 apply_theme(user_id=st.session_state["user_id"])
+
+def handle_display_selected_keyword():
+    kw = st.session_state.get("selected_keyword")
+    if kw:
+        matches = data[data["key word"].str.lower() == kw.lower()]
+        if not matches.empty:
+            for _, row in matches.iterrows():
+                display_bot_response(kw, row["description"], row["topic"])
+        else:
+            st.info("⚠️ Không tìm thấy mô tả cho từ khóa này.")
 
 if not data.empty:
     all_keywords = sorted(data["key word"].dropna().astype(str).unique())
@@ -447,14 +458,17 @@ if not data.empty:
     if selected_keyword:
         set_selected_keyword(selected_keyword)
 
+    # Nếu có chọn nhiều từ khóa
     if st.session_state["multi_filter_keywords"]:
         st.subheader("📋 Kết quả theo nhiều từ khóa:")
         for kw in st.session_state["multi_filter_keywords"]:
             matches = data[data["key word"].str.lower() == kw.lower()]
             for _, row in matches.iterrows():
                 display_bot_response(kw, row["description"], row["topic"])
+
+    # Nếu không có chọn nhiều từ khóa, hiển thị keyword được chọn
     elif st.session_state["selected_keyword"]:
-        kw = st.session_state["selected_keyword"]
+        handle_display_selected_keyword()
         matches = data[data["key word"].str.lower() == kw.lower()]
         if not matches.empty:
             for _, row in matches.iterrows():
