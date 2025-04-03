@@ -11,52 +11,35 @@ from datetime import datetime, timedelta
 st.set_page_config(page_title="Call Center Chatbot", layout="wide")
 st.markdown("""
     <style>
-    /* === Font mặc định toàn app === */
+    @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville&display=swap');
+
     html, body, [class*="css"] {
-        font-family: 'Garamond', 'Georgia', serif;
+        font-family: 'Libre Baskerville', serif;
         font-size: 16px;
         line-height: 1.6;
         color: #222;
     }
 
-    /* === Responsive Font Size === */
+    /* Responsive fonts */
     @media (max-width: 768px) {
         html, body {
             font-size: 15px;
         }
-
-        .stApp h1 {
-            font-size: 32px !important;
-        }
-
-        .stApp h2 {
-            font-size: 26px !important;
-        }
-
-        .stApp h3 {
-            font-size: 20px !important;
-        }
+        .stApp h1 { font-size: 32px !important; }
+        .stApp h2 { font-size: 26px !important; }
+        .stApp h3 { font-size: 20px !important; }
     }
 
     @media (max-width: 480px) {
         html, body {
             font-size: 14px;
         }
-
-        .stApp h1 {
-            font-size: 28px !important;
-        }
-
-        .stApp h2 {
-            font-size: 22px !important;
-        }
-
-        .stApp h3 {
-            font-size: 18px !important;
-        }
+        .stApp h1 { font-size: 28px !important; }
+        .stApp h2 { font-size: 22px !important; }
+        .stApp h3 { font-size: 18px !important; }
     }
 
-    /* === Tiêu đề chính - st.title() === */
+    /* Tiêu đề */
     .stApp h1 {
         font-size: 40px !important;
         font-weight: bold;
@@ -72,23 +55,23 @@ st.markdown("""
         font-size: 24px !important;
     }
 
-    /* === Ghi chú nhỏ - caption === */
+    /* Chatbot dùng cùng font nhưng có thể điều chỉnh riêng nếu muốn */
+    .element-container:has(.stChatMessage) {
+        font-family: 'Libre Baskerville', serif !important;
+        font-size: 16px;
+    }
+
+    /* Sidebar */
+    section[data-testid="stSidebar"] {
+        font-family: 'Libre Baskerville', serif !important;
+        font-size: 16px;
+    }
+
+    /* Caption / chú thích */
     .stApp .css-uc1cuc, .stApp .stMarkdown small {
         font-size: 13px !important;
         font-style: italic;
         color: #555;
-    }
-
-    /* === Phần chatbot (user + assistant) dùng font Georgia === */
-    .element-container:has(.stChatMessage) {
-        font-family: 'Georgia', serif !important;
-        font-size: 16px;
-    }
-
-    /* === Sidebar vẫn dùng Garamond === */
-    section[data-testid="stSidebar"] {
-        font-family: 'Garamond', 'Georgia', serif !important;
-        font-size: 16px;
     }
     </style>
 """, unsafe_allow_html=True)
