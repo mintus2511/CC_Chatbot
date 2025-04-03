@@ -86,10 +86,11 @@ def apply_theme(user_id: str):
         st.markdown("""
             <style>
             @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Roboto:wght@400;500&display=swap');
+
             html, body, .stApp {
                 font-family: 'Roboto', sans-serif !important;
                 background-color: #121212 !important;
-                color: white !important;
+                color: #f0f0f0 !important;
             }
             .stApp h1, h2, h3 {
                 font-family: 'Merriweather', serif !important;
@@ -97,6 +98,7 @@ def apply_theme(user_id: str):
             }
             section[data-testid="stSidebar"] {
                 background: linear-gradient(180deg, #242B68 0%, #1b1f4a 100%) !important;
+                color: white !important;
             }
             section[data-testid="stSidebar"] * {
                 color: white !important;
@@ -112,29 +114,30 @@ def apply_theme(user_id: str):
                 background-color: transparent !important;
                 color: white !important;
             }
-            input, textarea, select {
+            input, textarea, select, div[data-baseweb="input"] {
                 background-color: #2a2a2a !important;
                 color: white !important;
                 border: 1px solid #555 !important;
             }
             input::placeholder, textarea::placeholder {
-                color: #ccc !important;
+                color: #aaa !important;
             }
-            .stMultiSelect, .stSelectbox {
+            .stTextInput, .stTextArea, .stSelectbox, .stMultiSelect {
                 background-color: #2a2a2a !important;
                 color: white !important;
             }
-            .stRadio label, .stSelectbox label, .stMultiSelect label {
+            label, .stRadio label, .stSelectbox label, .stMultiSelect label {
                 color: white !important;
             }
             button {
                 background-color: #333 !important;
                 color: white !important;
-                border: 1px solid #555 !important;
+                border: 1px solid #666 !important;
             }
             button:hover {
                 background-color: #FBAD22 !important;
                 color: black !important;
+                border: 1px solid white !important;
             }
             </style>
         """, unsafe_allow_html=True)
