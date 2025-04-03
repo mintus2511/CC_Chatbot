@@ -156,7 +156,6 @@ def apply_theme(user_id: str):
 
 # === App Title ===
 st.set_page_config(page_title="Call Center Chatbot", layout="wide")
-apply_theme(user_id=st.session_state["user_id"])
 st.title("📞 Call Center Chatbot")
 
 # === Constants ===
@@ -172,6 +171,8 @@ if "user_id" not in st.session_state:
     st.session_state["user_id"] = user_id
 
 user_id = st.session_state["user_id"]
+
+apply_theme(user_id=st.session_state["user_id"])
 
 # === Đăng xuất / Tạo người dùng mới ===
 with st.sidebar:
