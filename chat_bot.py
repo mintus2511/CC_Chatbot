@@ -69,8 +69,8 @@ if "multi_filter_keywords" not in st.session_state:
     st.session_state["multi_filter_keywords"] = []
 if "selected_topics" not in st.session_state:
     st.session_state["selected_topics"] = []
-if "trigger_display" not in st.session_state:
-    st.session_state["trigger_display"] = False
+#if "trigger_display" not in st.session_state:
+    #st.session_state["trigger_display"] = False
 if "is_authorized" not in st.session_state:
     st.session_state["is_authorized"] = False 
 
@@ -385,9 +385,9 @@ if "uploaded_data" in st.session_state:
     data = data.drop_duplicates(subset="description", keep="first")
 
 def set_selected_keyword(keyword):
-    if keyword != st.session_state.get("selected_keyword"):
-        st.session_state["selected_keyword"] = keyword
-        st.session_state["trigger_display"] = True
+    st.session_state["selected_keyword"] = keyword
+    st.rerun()
+        #st.session_state["trigger_display"] = True
 
 if not data.empty:
     all_keywords = sorted(data["key word"].dropna().astype(str).unique())
@@ -454,8 +454,7 @@ if not data.empty:
             matches = data[data["key word"].str.lower() == kw.lower()]
             for _, row in matches.iterrows():
                 display_bot_response(kw, row["description"], row["topic"])
-    elif st.session_state["selected_keyword"] and st.session_state["trigger_display"]:
-        st.session_state["trigger_display"] = False
+    elif st.session_state["selected_keyword"]:
         kw = st.session_state["selected_keyword"]
         matches = data[data["key word"].str.lower() == kw.lower()]
         if not matches.empty:
