@@ -426,7 +426,7 @@ if not data.empty:
                 for kw in topic_keywords:
                     cols = st.columns([0.8, 0.2])
                     if cols[0].button(f"🔑 {kw}", key=f"kw-{topic}-{kw}"):
-                        set_selected_keyword(kw)
+                        st.session_state["sidebar_keyword_clicked"] = kw
                         st.rerun()
                     pin_icon = "📌" if kw in st.session_state["pinned_keywords"] else "☆"
                     if cols[1].button(pin_icon, key=f"pin-{topic}-{kw}"):
