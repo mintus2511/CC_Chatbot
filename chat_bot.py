@@ -81,7 +81,7 @@ if os.path.exists(UPLOADED_FILE):
     except Exception as e:
         st.warning(f"⚠️ Không thể đọc file đã lưu: {e}")
 
-# === Load GitHub CSVs nếu có ===
+# === GitHub Info ===
 GITHUB_USER = "mintus2511"
 GITHUB_REPO = "CC_Chatbot"
 GITHUB_API_URL = f"https://api.github.com/repos/{GITHUB_USER}/{GITHUB_REPO}/contents/"
