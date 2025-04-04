@@ -82,41 +82,41 @@ if os.path.exists(UPLOADED_FILE):
         st.warning(f"⚠️ Không thể đọc file đã lưu: {e}")
 
 # === Load GitHub CSVs nếu có ===
-#GITHUB_USER = "mintus2511"
-#GITHUB_REPO = "CC_Chatbot"
-#GITHUB_API_URL = f"https://api.github.com/repos/{GITHUB_USER}/{GITHUB_REPO}/contents/"
+GITHUB_USER = "mintus2511"
+GITHUB_REPO = "CC_Chatbot"
+GITHUB_API_URL = f"https://api.github.com/repos/{GITHUB_USER}/{GITHUB_REPO}/contents/"
 
-#@st.cache_data(ttl=60)
-#def get_csv_file_links():
-    #try:
-        #response = requests.get(GITHUB_API_URL)
-        #response.raise_for_status()
-        #files = response.json()
-        #sorted_csvs = sorted(
-            #[file for file in files if file["name"].endswith(".csv")],
-            #key=lambda x: x["name"]
-       # )
-       # return {
-      #      file["name"]: file["download_url"]
-        #    for file in sorted_csvs
-      #  }
-  #  except Exception as e:
-    #    st.warning(f"⚠️ Lỗi khi lấy danh sách file từ GitHub: {e}")
-    #    return {}
+@st.cache_data(ttl=60)
+def get_csv_file_links():
+    try:
+        response = requests.get(GITHUB_API_URL)
+        response.raise_for_status()
+        files = response.json()
+        sorted_csvs = sorted(
+            [file for file in files if file["name"].endswith(".csv")],
+            key=lambda x: x["name"]
+        )
+        return {
+            file["name"]: file["download_url"]
+            for file in sorted_csvs
+        }
+    except Exception as e:
+        st.warning(f"⚠️ Lỗi khi lấy danh sách file từ GitHub: {e}")
+        return {}
 
-#@st.cache_data(ttl=60)
-#def load_csvs(csv_files):
-    #combined = pd.DataFrame(columns=["key word", "description", "topic"])
-    #for name, url in csv_files.items():
-       # try:
-           # df = pd.read_csv(url)
-          #  df.columns = df.columns.str.lower().str.strip()
-          #  if {"key word", "description"}.issubset(df.columns):
-          #      df["topic"] = name.replace(".csv", "")
-            #    combined = pd.concat([combined, df], ignore_index=True)
-      #  except Exception as e:
-           # st.warning(f"⚠️ Không thể đọc {name} từ GitHub: {e}")
-#    return combined
+@st.cache_data(ttl=60)
+def load_csvs(csv_files):
+    combined = pd.DataFrame(columns=["key word", "description", "topic"])
+    for name, url in csv_files.items():
+        try:
+            df = pd.read_csv(url)
+            df.columns = df.columns.str.lower().str.strip()
+            if {"key word", "description"}.issubset(df.columns):
+                df["topic"] = name.replace(".csv", "")
+                combined = pd.concat([combined, df], ignore_index=True)
+        except Exception as e:
+            st.warning(f"⚠️ Không thể đọc {name} từ GitHub: {e}")
+    return combined
 
 # Nếu đã có dữ liệu upload từ file local thì ưu tiên dùng trước
 if "uploaded_data" in st.session_state:
@@ -363,44 +363,6 @@ if st.session_state["is_authorized"]:
                 st.error(f"❌ Không thể quản lý topic: {e}")
 
 
-# === GitHub Repo Info ===
-GITHUB_USER = "mintus2511"
-GITHUB_REPO = "CC_Chatbot"
-GITHUB_API_URL = f"https://api.github.com/repos/{GITHUB_USER}/{GITHUB_REPO}/contents/"
-
-@st.cache_data(ttl=60)
-def get_csv_file_links():
-    try:
-        response = requests.get(GITHUB_API_URL)
-        response.raise_for_status()
-        files = response.json()
-        sorted_csvs = sorted(
-            [file for file in files if file["name"].endswith(".csv")],
-            key=lambda x: x["name"]
-        )
-        return {
-            file["name"]: file["download_url"]
-            for file in sorted_csvs
-        }
-    except Exception as e:
-        st.error(f"❌ Lỗi khi kết nối tới GitHub: {e}")
-        return {}
-
-@st.cache_data(ttl=60)
-def load_csvs(csv_files):
-    combined = pd.DataFrame(columns=["key word", "description", "topic"])
-    for name, url in csv_files.items():
-        try:
-            df = pd.read_csv(url)
-            df.columns = df.columns.str.lower().str.strip()
-            if {"key word", "description"}.issubset(df.columns):
-                df["topic"] = name.replace(".csv", "")
-                combined = pd.concat([combined, df[["key word", "description", "topic"]]], ignore_index=True)
-        except Exception as e:
-            st.warning(f"⚠️ Lỗi đọc {name}: {e}")
-    combined = combined.drop_duplicates(subset="key word", keep="last")
-    combined = combined.drop_duplicates(subset="description", keep="first")
-    return combined
 
 if "uploaded_data" in st.session_state:
     data = st.session_state["uploaded_data"]
