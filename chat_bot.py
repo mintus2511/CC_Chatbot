@@ -307,7 +307,7 @@ if st.session_state["is_authorized"]:
         st.subheader("🗂️ Quản lý topic và từ khóa")
         if os.path.exists(UPLOADED_FILE):
             try:
-                df_all = all_data_combined.copy()
+                df_all = st.session_state["uploaded_data"].copy()
                 all_topics = sorted(df_all['topic'].dropna().unique())
                 topic_to_edit = st.selectbox("📂 Chọn topic:", all_topics)
                 df_topic = df_all[df_all['topic'] == topic_to_edit].copy()
