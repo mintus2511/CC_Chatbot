@@ -344,7 +344,7 @@ if st.session_state["is_authorized"]:
                         st.warning("⚠️ Bạn chưa chọn từ khóa nào để xoá.")
 
                 # === Đổi tên topic
-                if co_action == "📝 Chỉnh sửa topic đã upload":
+                if co_action == "📝 Chỉnh sửa topic/key word/description":
                     new_name = st.text_input("✏️ Đổi tên topic:", value=topic_to_edit)
                     if st.button("💾 Lưu tên topic mới") and new_name != topic_to_edit:
                         df_all.loc[df_all['topic'] == topic_to_edit, 'topic'] = new_name
